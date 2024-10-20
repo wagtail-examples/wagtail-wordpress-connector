@@ -33,8 +33,8 @@ class BlogPage(Page):
     date = models.DateField("Post date")
     intro = RichTextField(blank=True)
     body = RichTextField(blank=True)
-    # authors = ParentalManyToManyField("blog.Author", blank=True)
-    # tags = ClusterTaggableManager(through=BlogPageTag, blank=True)
+    authors = ParentalManyToManyField("blog.Author", blank=True)
+    tags = ClusterTaggableManager(through=BlogPageTag, blank=True)
 
     search_fields = Page.search_fields + [
         index.SearchField("intro"),
@@ -45,8 +45,8 @@ class BlogPage(Page):
         MultiFieldPanel(
             [
                 FieldPanel("date"),
-                # FieldPanel("authors", widget=forms.CheckboxSelectMultiple),
-                # FieldPanel("tags"),
+                FieldPanel("authors", widget=forms.CheckboxSelectMultiple),
+                FieldPanel("tags"),
             ],
             heading="Blog information",
         ),
@@ -78,27 +78,27 @@ class BlogPage(Page):
 #     ]
 
 
-# @register_snippet
-# class Author(models.Model):
-#     name = models.CharField(max_length=255)
-#     author_image = models.ForeignKey(
-#         "wagtailimages.Image",
-#         null=True,
-#         blank=True,
-#         on_delete=models.SET_NULL,
-#         related_name="+",
-#     )
+@register_snippet
+class Author(models.Model):
+    name = models.CharField(max_length=255)
+    author_image = models.ForeignKey(
+        "wagtailimages.Image",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
 
-#     panels = [
-#         FieldPanel("name"),
-#         FieldPanel("author_image"),
-#     ]
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("author_image"),
+    ]
 
-#     def __str__(self):
-#         return self.name
+    def __str__(self):
+        return self.name
 
-#     class Meta:
-#         verbose_name_plural = "Authors"
+    class Meta:
+        verbose_name_plural = "Authors"
 
 
 class BlogTagIndexPage(Page):
@@ -113,18 +113,3 @@ class BlogTagIndexPage(Page):
         context = super().get_context(request)
         context["blogpages"] = blogpages
         return context
-
-# from django.db import models
-# from wagtail.models import Page
-# from wagtail.fields import RichTextField
-# from wagtail.admin.panels import FieldPanel
-
-
-# class BlogPage(Page):
-#     excerpt = models.TextField(blank=True)
-#     body = RichTextField(blank=True)
-
-#     content_panels = Page.content_panels + [
-#         FieldPanel('excerpt'),
-#         FieldPanel('body'),
-#     ]
