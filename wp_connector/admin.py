@@ -48,6 +48,9 @@ class BaseAdmin(admin.ModelAdmin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if hasattr(self.model, "django_admin_filter_horizontal"):
+            self.filter_horizontal = self.model.django_admin_filter_horizontal
+
         self.truncated_length = (
             settings.WPC_TRUNCATE
             if hasattr(

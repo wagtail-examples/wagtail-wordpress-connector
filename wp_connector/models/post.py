@@ -50,6 +50,10 @@ class WPPost(WordpressModel, ExportableMixin):
         blank=True,
     )
 
+    # Makes the django admin to display these fields as
+    # a javascript widget
+    django_admin_filter_horizontal = ("categories", "tags")
+
     class Meta:
         verbose_name = "Post"
         verbose_name_plural = "Posts"
