@@ -16,10 +16,9 @@
         </article>
 
         <article>
-            {% with authors=page.authors.all %}
-                {% if authors %}
+            {% with page.author as author %}
+                {% if author %}
                 <p>Posted by:</p>
-                    {% for author in authors %}
                     <small>
                         {% image author.author_image fill-40x40 as author_image %}
                         {% if author_image %}
@@ -29,7 +28,6 @@
                         {% endif %}
                         {{ author.name }}
                     </small>
-                    {% endfor %}
                 {% endif %}
             {% endwith %}
             <hr>

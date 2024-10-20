@@ -33,7 +33,12 @@ class BlogPage(Page):
     date = models.DateField("Post date")
     intro = RichTextField(blank=True)
     body = RichTextField(blank=True)
-    authors = ParentalManyToManyField("blog.Author", blank=True)
+    author = models.ForeignKey(
+        "blog.Author",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     tags = ClusterTaggableManager(through=BlogPageTag, blank=True)
 
     search_fields = Page.search_fields + [
@@ -45,7 +50,7 @@ class BlogPage(Page):
         MultiFieldPanel(
             [
                 FieldPanel("date"),
-                FieldPanel("authors", widget=forms.CheckboxSelectMultiple),
+                FieldPanel("author"),
                 FieldPanel("tags"),
             ],
             heading="Blog information",
