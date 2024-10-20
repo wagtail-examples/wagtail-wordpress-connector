@@ -15,7 +15,8 @@ class WPPost(WordpressModel, ExportableMixin):
     FIELD_MAPPING = {
         "title": "title",
         "content": "body",
-        "excerpt": "excerpt",
+        "excerpt": "intro",
+        "date": "date",
     }
 
     title = models.CharField(max_length=255)
