@@ -8,6 +8,7 @@ class WPPage(WordpressModel, ExportableMixin):
 
     SOURCE_URL = "/wp-json/wp/v2/pages"
     WAGTAIL_PAGE_MODEL = "home.StandardPage"
+    WAGTAIL_PAGE_MODEL_PARENT = "home.HomePage"
     WAGTAIL_REQUIRED_FIELDS = ["title"]
     WAGTAIL_PAGE_MODEL_STEAM_FIELDS = [
         # "body",
@@ -15,7 +16,7 @@ class WPPage(WordpressModel, ExportableMixin):
     FIELD_MAPPING = {
         "title": "title",
         "content": "body",
-        "excerpt": "excerpt",
+        "excerpt": "intro",
     }
 
     title = models.CharField(max_length=255)

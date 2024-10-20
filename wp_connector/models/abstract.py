@@ -103,5 +103,6 @@ class ExportableMixin:
             )
 
     WAGTAIL_PAGE_MODEL = None  # e.g. "blog.BlogPage"
+    WAGTAIL_PAGE_MODEL_PARENT = None  # e.g. "blog.BlogIndexPage"
     FIELD_MAPPING = {}  # e.g. {"title": "title"} {[object_field]: [wagtail_field]}
     WAGTAIL_REQUIRED_FIELDS = []  # e.g. ["title"] [wagtail_field]

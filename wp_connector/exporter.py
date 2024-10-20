@@ -22,6 +22,7 @@ class Exporter:
             self.obj.WAGTAIL_PAGE_MODEL.split(".")[0],
             self.obj.WAGTAIL_PAGE_MODEL.split(".")[1],
         )
+        self.wagtail_page_model_parent = self.obj.WAGTAIL_PAGE_MODEL_PARENT
         self.required_fields = self.obj.WAGTAIL_REQUIRED_FIELDS
         self.field_mapping = self.obj.FIELD_MAPPING
 
@@ -40,6 +41,13 @@ class Exporter:
         )
 
     def do_create_wagtail_page(self):
+        parent_page = apps.get_model(
+            self.wagtail_page_model_parent.split(".")[0],
+            self.wagtail_page_model_parent.split(".")[1],
+        ).objects.first()
+        if not parent_page:
+            return "No parent page found."
+        
         if self.fails_required_fields():
             message = f"Failed to create wordpress object ID:{self.obj.wp_id}"
             message += " because of missing required fields."
@@ -50,7 +58,7 @@ class Exporter:
             return f"Wagtail page already created. {wp_instance.wagtail_page_id}"
 
         created_wagtail_page = self.wagtail_page_model()
-    
+
         for wp_field, wagtail_field in self.field_mapping.items():
             setattr(
                 created_wagtail_page,
@@ -61,7 +69,6 @@ class Exporter:
                 ),
             )
 
-        parent_page = apps.get_model("home.HomePage").objects.first()
         parent_page.add_child(instance=created_wagtail_page)
         revision = created_wagtail_page.save_revision()
         revision.publish()
