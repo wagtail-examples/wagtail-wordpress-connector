@@ -1,5 +1,6 @@
 from cProfile import label
 from django.db import models
+from django.utils.safestring import mark_safe
 
 from .abstract import WordpressModel
 
@@ -22,3 +23,8 @@ class WPAuthor(WordpressModel):
 
     def __str__(self):
         return self.name
+    
+    def get_link_link(self, obj):
+        link = obj.link
+        link = f'<a href="{link}" target="_blank">Open</a>'
+        return mark_safe(link)

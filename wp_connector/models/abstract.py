@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.db import models
 
 
@@ -5,17 +6,21 @@ class WordpressModel(models.Model):
     """ABSTRACT Base model for the Wordpress models.
 
     All Wordpress models should inherit from this model.
+
+    Attributes: (need to be defined in the child class)
+        SOURCE_URL (str): The source URL for the Wordpress object.
+        TARGET_WAGTAIL_PAGE_MODEL (str): The target Wagtail page model.
+
     """
 
-    # Format: /wp-json/wp/v2/[model_name]
-    # This is passed to the wordpress client and appended to WP_HOST
-    # It's required on every wordpress model
-    SOURCE_URL = None
+    SOURCE_URL = None  # e.g. "/wp-json/wp/v2/posts"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.SOURCE_URL:
-            raise NotImplementedError("WordpressModel must have a SOURCE_URL attribute")
+            raise NotImplementedError(
+                self._meta.object_name + "Model must have a SOURCE_URL attribute",
+            )
 
     wp_id = models.IntegerField(unique=True, verbose_name="Wordpress ID")
     wp_foreign_keys = models.JSONField(blank=True, null=True)
@@ -23,6 +28,7 @@ class WordpressModel(models.Model):
     wagtail_model = models.JSONField(blank=True, null=True)
     wp_cleaned_content = models.TextField(blank=True, null=True)
     wp_block_content = models.JSONField(blank=True, null=True)
+    wagtail_page_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -57,29 +63,6 @@ class WordpressModel(models.Model):
 
         return import_fields
 
-    # @staticmethod
-    # def clean_content_html(html_content, clean_tags=None):
-    #     """Clean the content.
-
-    #     Args:
-    #         content (str): The content to clean.
-    #         clean_tags (list): A list of tags to clean.
-
-    #     Returns:
-    #         str: The cleaned content.
-    #     """
-    #     if not clean_tags:
-    #         clean_tags = getattr(settings, "WPI_CLEAN_TAGS", ["div"])
-
-    #     if html_content:
-    #         soup = bs4(html_content, "html.parser")
-    #         # find all clean_tags tag name and remove them while keeping their contents
-    #         for div in soup.find_all(clean_tags):
-    #             div.unwrap()
-    #         html_content = str(soup)
-
-    #     return html_content
-
     @staticmethod
     def process_fields():
         """Override this method to process fields."""
@@ -110,4 +93,15 @@ class WordpressModel(models.Model):
         return self.SOURCE_URL.strip("/")
 
 
-# clean_html = WordpressModel.clean_content_html  # for convenience
+class ExportableMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.WAGTAIL_PAGE_MODEL:
+            raise NotImplementedError(
+                self._meta.object_name
+                + "Model must have a TARGET_WAGTAIL_PAGE_MODEL attribute",
+            )
+
+    WAGTAIL_PAGE_MODEL = None  # e.g. "blog.BlogPage"
+    FIELD_MAPPING = {}  # e.g. {"title": "title"} {[object_field]: [wagtail_field]}
+    WAGTAIL_REQUIRED_FIELDS = []  # e.g. ["title"] [wagtail_field]

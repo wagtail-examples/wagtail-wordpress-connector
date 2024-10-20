@@ -1,12 +1,22 @@
 from django.db import models
 
-from .abstract import WordpressModel
+from .abstract import WordpressModel, ExportableMixin
 
 
-class WPPage(WordpressModel):
+class WPPage(WordpressModel, ExportableMixin):
     """Model definition for Page."""
 
     SOURCE_URL = "/wp-json/wp/v2/pages"
+    WAGTAIL_PAGE_MODEL = "home.StandardPage"
+    WAGTAIL_REQUIRED_FIELDS = ["title"]
+    WAGTAIL_PAGE_MODEL_STEAM_FIELDS = [
+        # "body",
+    ]
+    FIELD_MAPPING = {
+        "title": "title",
+        "content": "body",
+        "excerpt": "excerpt",
+    }
 
     title = models.CharField(max_length=255)
     date = models.DateTimeField()

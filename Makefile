@@ -12,3 +12,5 @@ media:
 		python manage.py import http://localhost:8888/wp-json/wp/v2/media WPMedia
 comments:
 		python manage.py import http://localhost:8888/wp-json/wp/v2/comments WPComment
+all: authors categories tags pages posts media comments
+		@echo "All done"

@@ -7,10 +7,12 @@ from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from search import views as search_views
+from wp_connector.admin import import_admin
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
+    path("import-admin/", import_admin.urls),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
 ]

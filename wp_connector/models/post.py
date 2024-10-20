@@ -1,15 +1,22 @@
 from django.db import models
 
-from .abstract import WordpressModel
-from .author import WPAuthor
-from .category import WPCategory
-from .tag import WPTag
+from .abstract import WordpressModel, ExportableMixin
 
 
-class WPPost(WordpressModel):
+class WPPost(WordpressModel, ExportableMixin):
     """Model definition for Post."""
 
     SOURCE_URL = "/wp-json/wp/v2/posts"
+    WAGTAIL_PAGE_MODEL = "blog.BlogPage"
+    WAGTAIL_REQUIRED_FIELDS = ["title"]
+    WAGTAIL_PAGE_MODEL_STEAM_FIELDS = [
+        "body",
+    ]
+    FIELD_MAPPING = {
+        "title": "title",
+        "content": "body",
+        "excerpt": "excerpt",
+    }
 
     title = models.CharField(max_length=255)
     date = models.DateTimeField()
