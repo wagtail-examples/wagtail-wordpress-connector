@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from django.apps import apps
 
-from blog.models import Author
+from blog.models import Author, BlogPageTag
+from taggit.models import Tag
 
 # TODO: Better logging of messages
 
@@ -32,7 +33,8 @@ class Exporter:
                 The required fields for the wagtail page model
         wagtail_page_model_has_author (bool):
                 Does the wagtail page model have an author field
-
+        wagtail_page_model_has_tags (bool):
+                Does the wagtail page model have a tags field
         ## there will be other foriegn key fields here
 
         required_fields (list):
@@ -50,6 +52,7 @@ class Exporter:
     wagtail_page_model: object = None
     wagtail_page_model_required_fields: list = None
     wagtail_page_model_has_author: bool = False
+    wagtail_page_model_has_tags: bool = False
     required_fields: list = None
     field_mapping: dict = None
 
@@ -78,6 +81,9 @@ class Exporter:
 
         if hasattr(self.obj, "author"):
             self.wagtail_page_model_has_author = True
+
+        if hasattr(self.obj, "tags"):
+            self.wagtail_page_model_has_tags = True
 
     def do_create_wagtail_page(self):
         # The wagtail parent page
@@ -123,6 +129,20 @@ class Exporter:
                     name=obj_author.name,
                 )
                 created_wagtail_page.author = author_snippet
+
+        # Set the TAGS if the page model has tags
+        # Do this before the page is published
+        if self.wagtail_page_model_has_tags:
+            # some don't have tags
+            if obj_tags := self.obj.tags.all():
+                for obj_tag in obj_tags:
+                    # is the tag already available in the Tag model?
+                    if tag := Tag.objects.filter(name=obj_tag.name).first():
+                        created_wagtail_page.tags.add(tag)
+                    else:
+                        tag = Tag.objects.create(name=obj_tag.name)
+                        created_wagtail_page.tags.add(tag)
+
 
         # Add/Save the page
         parent_page.add_child(instance=created_wagtail_page)
@@ -173,6 +193,20 @@ class Exporter:
                     name=obj_author.name,
                 )
                 updated_wagtail_page.author = author_snippet
+
+        # Set the TAGS if the page model has tags
+        # Do this before the page is published
+        if self.wagtail_page_model_has_tags:
+            # some don't have tags
+            if obj_tags := self.obj.tags.all():
+                updated_wagtail_page.tags.clear()
+                for obj_tag in obj_tags:
+                    # is the tag already available in the Tag model?
+                    if tag := Tag.objects.filter(name=obj_tag.name).first():
+                        updated_wagtail_page.tags.add(tag)
+                    else:
+                        tag = Tag.objects.create(name=obj_tag.name)
+                        updated_wagtail_page.tags.add(tag)
 
         # Update/Save the page
         revision = updated_wagtail_page.save_revision()

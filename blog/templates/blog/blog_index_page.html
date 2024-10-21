@@ -5,9 +5,12 @@
 {% block body_class %}template-blogindexpage{% endblock %}
 
 {% block content %}
-    <article>
-        <h1>{{ page.title }}</h1>
-        <div class="intro">{{ page.intro|richtext }}</div>
+    <article class="pico-background-pumpkin-100">
+        <hgroup>
+            <h1>{{ page.title }}</h1>
+            <p>This is an example index page for the blog</p>
+        </hgroup>
+        {{ page.intro|richtext }}
     </article>
 
     {% for post in blogpages %}

@@ -6,6 +6,14 @@
 
 {% block content %}
 
+    <article class="pico-background-pumpkin-100">
+        <hgroup>
+            <h1>Blog Post</h1>
+            <p>This is an example post page for the blog.</p>
+        </hgroup>
+        <p>The content below is imported from Wordpress</p>
+    </article>
+
     <div class="grid">
         <article>
             <hgroup>
@@ -46,10 +54,8 @@
     <article>
         <div class="grid">
             <hgroup>
-                <!-- <p>{{ page.intro }}</p> -->
                 {{ page.body|richtext }}
             </hgroup>
-
         </div>
 
         {% for item in page.gallery_images.all %}
@@ -68,8 +74,6 @@
         {% endif %}
         {% endfor %}
 
-
     </article>
-
 
 {% endblock %}

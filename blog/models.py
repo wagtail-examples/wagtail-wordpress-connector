@@ -1,11 +1,10 @@
-from django import forms
 from django.db import models
 from modelcluster.contrib.taggit import ClusterTaggableManager
-from modelcluster.fields import ParentalKey, ParentalManyToManyField
+from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
-from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.fields import RichTextField
-from wagtail.models import Orderable, Page
+from wagtail.models import Page
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
 
