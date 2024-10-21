@@ -1,20 +1,11 @@
 from django.conf import settings
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from wagtail.contrib.redirects.models import Redirect
 from wagtail.models import Page
 
-from .models import (
-    WPPage,
-    WPCategory,
-    WPTag,
-    WPAuthor,
-    WPPost,
-    WPComment,
-    WPMedia,
-)
-
 from .exporter import Exporter
-from wagtail.contrib.redirects.models import Redirect
+from .models import WPAuthor, WPCategory, WPComment, WPMedia, WPPage, WPPost, WPTag
 
 
 class ImportAdmin(admin.AdminSite):
@@ -307,7 +298,7 @@ class BaseAdmin(admin.ModelAdmin):
     def export_wagtail_redirects(self, admin, request, queryset):
         """
         Export the wagtail redirects for the selected wordpress objects
-        
+
         Only create redirects for objects that have a wagtail_page_id
         and the slug gerneated by wagtail does not match the slug in the wordpress object
         """

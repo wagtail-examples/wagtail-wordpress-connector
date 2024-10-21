@@ -7,17 +7,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0004_blogpage_tags_author_blogpage_authors'),
+        ("blog", "0004_blogpage_tags_author_blogpage_authors"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='blogpage',
-            name='authors',
+            model_name="blogpage",
+            name="authors",
         ),
         migrations.AddField(
-            model_name='blogpage',
-            name='authors',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='blog.author'),
+            model_name="blogpage",
+            name="authors",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="blog.author",
+            ),
         ),
     ]

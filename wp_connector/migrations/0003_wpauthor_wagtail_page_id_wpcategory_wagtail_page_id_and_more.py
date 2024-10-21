@@ -6,43 +6,43 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wp_connector', '0002_alter_wpauthor_name'),
+        ("wp_connector", "0002_alter_wpauthor_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='wpauthor',
-            name='wagtail_page_id',
+            model_name="wpauthor",
+            name="wagtail_page_id",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='wpcategory',
-            name='wagtail_page_id',
+            model_name="wpcategory",
+            name="wagtail_page_id",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='wpcomment',
-            name='wagtail_page_id',
+            model_name="wpcomment",
+            name="wagtail_page_id",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='wpmedia',
-            name='wagtail_page_id',
+            model_name="wpmedia",
+            name="wagtail_page_id",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='wppage',
-            name='wagtail_page_id',
+            model_name="wppage",
+            name="wagtail_page_id",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='wppost',
-            name='wagtail_page_id',
+            model_name="wppost",
+            name="wagtail_page_id",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='wptag',
-            name='wagtail_page_id',
+            model_name="wptag",
+            name="wagtail_page_id",
             field=models.IntegerField(blank=True, null=True),
         ),
     ]

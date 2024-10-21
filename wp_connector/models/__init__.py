@@ -7,11 +7,11 @@ from .post import WPPost
 from .tag import WPTag
 
 __all__ = [
-    'WPAuthor',
-    'WPCategory',
-    'WPComment',
-    'WPMedia',
-    'WPPage',
-    'WPPost',
-    'WPTag'
+    "WPAuthor",
+    "WPCategory",
+    "WPComment",
+    "WPMedia",
+    "WPPage",
+    "WPPost",
+    "WPTag",
 ]

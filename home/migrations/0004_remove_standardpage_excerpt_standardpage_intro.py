@@ -7,17 +7,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('home', '0003_standardpage'),
+        ("home", "0003_standardpage"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='standardpage',
-            name='excerpt',
+            model_name="standardpage",
+            name="excerpt",
         ),
         migrations.AddField(
-            model_name='standardpage',
-            name='intro',
+            model_name="standardpage",
+            name="intro",
             field=wagtail.fields.RichTextField(blank=True),
         ),
     ]

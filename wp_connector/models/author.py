@@ -1,4 +1,3 @@
-from cProfile import label
 from django.db import models
 from django.utils.safestring import mark_safe
 
@@ -23,7 +22,7 @@ class WPAuthor(WordpressModel):
 
     def __str__(self):
         return self.name
-    
+
     def get_link_link(self, obj):
         link = obj.link
         link = f'<a href="{link}" target="_blank">Open</a>'

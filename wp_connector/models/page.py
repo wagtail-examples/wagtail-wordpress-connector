@@ -1,6 +1,6 @@
 from django.db import models
 
-from .abstract import WordpressModel, ExportableMixin
+from .abstract import ExportableMixin, WordpressModel
 
 
 class WPPage(WordpressModel, ExportableMixin):

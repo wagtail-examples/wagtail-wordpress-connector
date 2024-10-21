@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from django.apps import apps
 
-from blog.models import Author, BlogPageTag
+from django.apps import apps
 from taggit.models import Tag
+
+from blog.models import Author
 
 # TODO: Better logging of messages
 
@@ -142,7 +143,6 @@ class Exporter:
                     else:
                         tag = Tag.objects.create(name=obj_tag.name)
                         created_wagtail_page.tags.add(tag)
-
 
         # Add/Save the page
         parent_page.add_child(instance=created_wagtail_page)

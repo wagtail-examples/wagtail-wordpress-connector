@@ -7,13 +7,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0002_alter_blogpage_intro'),
+        ("blog", "0002_alter_blogpage_intro"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='blogpage',
-            name='intro',
+            model_name="blogpage",
+            name="intro",
             field=wagtail.fields.RichTextField(blank=True),
         ),
     ]

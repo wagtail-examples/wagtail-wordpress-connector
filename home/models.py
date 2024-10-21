@@ -1,8 +1,6 @@
-from wagtail.models import Page
+from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField
-from wagtail.admin.panels import (
-    FieldPanel,
-)
+from wagtail.models import Page
 
 
 class HomePage(Page):

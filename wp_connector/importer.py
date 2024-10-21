@@ -29,14 +29,18 @@ class Importer:
                 # e.g. Tags has name and slug field but names can be the same
                 # That doesn't work well with taggit default model, but why would you have 2 the same anyway?
                 if hasattr(self.model, "UNIQUE_FIELDS"):
-                    qs = self.model.objects.filter(**{field: item[field] for field in self.model.UNIQUE_FIELDS})
+                    qs = self.model.objects.filter(
+                        **{field: item[field] for field in self.model.UNIQUE_FIELDS}
+                    )
                     if qs.exists():
                         continue  # bail out of this loop,
                         # TODO: the side effect is the object won't be updated only created
 
                 # rename the id field to wp_id
                 item["wp_id"] = item.pop("id")
-                data = {field: item[field] for field in self.import_fields if field in item}
+                data = {
+                    field: item[field] for field in self.import_fields if field in item
+                }
 
                 # some data is nested in the json response
                 # so use jmespath to get to it and update the value
@@ -46,7 +50,9 @@ class Importer:
                             data.update({key: jmespath.search(value, item)})
 
                 # create or update the model with data we have so far
-                obj, created = self.model.objects.update_or_create(wp_id=item["wp_id"], defaults=data)
+                obj, created = self.model.objects.update_or_create(
+                    wp_id=item["wp_id"], defaults=data
+                )
 
                 sys.stdout.write(f"Created {obj}\n" if created else f"Updated {obj}\n")
 
@@ -54,7 +60,9 @@ class Importer:
                 self.fk_objects.append(obj)
 
                 # foreign keys
-                foreign_key_data = self.get_foreign_key_data(self.model.process_foreign_keys, self.model, item)
+                foreign_key_data = self.get_foreign_key_data(
+                    self.model.process_foreign_keys, self.model, item
+                )
 
                 obj.wp_foreign_keys = foreign_key_data
 
@@ -62,7 +70,9 @@ class Importer:
                 self.mtm_objects.append(obj)
 
                 # Process many to many keys
-                many_to_many_data = self.get_many_to_many_data(self.model.process_many_to_many_keys, item)
+                many_to_many_data = self.get_many_to_many_data(
+                    self.model.process_many_to_many_keys, item
+                )
 
                 obj.wp_many_to_many_keys = many_to_many_data
 
@@ -130,7 +140,11 @@ class Importer:
                     """
                     # self = a foreign key to the current model
                     # or it's a foreign key to another model
-                    model = current_model if value["model"] == "self" else apps.get_model("wp_connector", value["model"])
+                    model = (
+                        current_model
+                        if value["model"] == "self"
+                        else apps.get_model("wp_connector", value["model"])
+                    )
 
                     foreign_key_data.append(
                         {

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wp_connector', '0001_initial'),
+        ("wp_connector", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='wpauthor',
-            name='name',
-            field=models.CharField(help_text='Display name', max_length=255),
+            model_name="wpauthor",
+            name="name",
+            field=models.CharField(help_text="Display name", max_length=255),
         ),
     ]
