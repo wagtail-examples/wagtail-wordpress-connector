@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../static_src/js/app.js"],
+  "sourcesContent": ["class ShowMessage {\n    constructor(times=3) {\n        this.message = 'Hello from Wagtail starter kit!';\n        this.times = times;\n    }\n\n    showMessage() {\n        for (let i = 0; i < this.times; i++) {\n            console.log(this.message);\n        }\n    }\n}\n\nconst showMessage = new ShowMessage();\nshowMessage.showMessage();\n"],
+  "mappings": "MAAA,IAAMA,EAAN,KAAkB,CACd,YAAYC,EAAM,EAAG,CACjB,KAAK,QAAU,kCACf,KAAK,MAAQA,CACjB,CAEA,aAAc,CACV,QAASC,EAAI,EAAGA,EAAI,KAAK,MAAOA,IAC5B,QAAQ,IAAI,KAAK,OAAO,CAEhC,CACJ,EAEMC,EAAc,IAAIH,EACxBG,EAAY,YAAY",
+  "names": ["ShowMessage", "times", "i", "showMessage"]
+}
