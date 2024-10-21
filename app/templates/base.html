@@ -1,4 +1,4 @@
-{% load static wagtailcore_tags wagtailuserbar navigation_tags %}
+{% load static wagtailcore_tags wagtailuserbar navigation_tags i18n %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -29,33 +29,25 @@
         {% block extra_css %}
         {# Override this in templates to add extra stylesheets #}
         {% endblock %}
-    </head>
-
+    </head>    
+    
     <body class="{% block body_class %}{% endblock %}">
         {% wagtailuserbar %}
 
+        {% block header %}
         <header class="container">
-            <nav>
-                <ul>
-                    <li>
-                        <a href="/"><h1>Wagtail Blog Tutorial</h1></a>
-                    </li>
-                </ul>
-                <ul>
-                    <li>
-                        <a href="{% get_blog_index_url %}" role="button">View Blog</a>
-                    </li>
-                </ul>
-            </nav>
+            <hgroup>
+                <h1><a href="/">Wordpress Import Test Site</a></h1>
+                <p>Welcome page</p>
+            </hgroup>
         </header>
+        {% endblock %}
 
         <main class="container">
             {% block content %}{% endblock %}
         </main>
 
-        <footer class="container">
-            <p>Working example of the <a href="https://docs.wagtail.org/en/v6.2.2/getting_started/tutorial.html">Wagtail Getting Started Tutorial</a></p>
-        </footer>
+        {% block footer %}{% endblock %}
 
         {# Global javascript #}
         <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
