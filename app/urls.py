@@ -15,8 +15,8 @@ urlpatterns = [
     path("import-admin/", import_admin.urls),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
+    path("style-guide/", include("style_guide.urls")),
 ]
-
 
 if settings.DEBUG:
     from django.conf.urls.static import static

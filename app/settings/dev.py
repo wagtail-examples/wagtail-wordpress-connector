@@ -11,6 +11,8 @@ ALLOWED_HOSTS = ["*"]
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+# Remove if not required
+INSTALLED_APPS += ["style_guide"]  # noqa F405
 
 try:
     from .local import *
