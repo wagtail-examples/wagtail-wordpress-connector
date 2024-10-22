@@ -281,9 +281,36 @@ class BaseAdmin(admin.ModelAdmin):
         return mark_safe(source_url)
 
     def create_wagtail_page(self, admin, request, queryset):
+        # The queryset can only contain wordpress pages of either type 'page' or 'post'
+        # If it contains a mix of both types, raise an error
+        # Get the type for the first object in the queryset
+        first_object_type = queryset[0].type
+        # Check if the type of the first object is the same as the type of all the other objects
+        if not all(obj.type == first_object_type for obj in queryset):
+            raise ValueError(
+                "The queryset can only contain wordpress pages of either type 'page' or 'post'."
+            )
+
         for obj in queryset:
             result = Exporter(admin, request, obj).do_create_wagtail_page()
             print(result)
+
+        if first_object_type == "page":
+            # The page heirarchy is not preserved when creating page types in initial import
+            # This is because the parent page may not have been created yet
+            # So we need to update the parent page for all the pages using the move_page method
+            # refresh the queryset to pick up the wagtial_page_id's
+            queryset = self.model.objects.filter(
+                id__in=queryset.values_list("id", flat=True)
+            )
+            for obj in queryset:
+                if obj.parent:
+                    # get the parent page
+                    parent_page = Page.objects.get(id=obj.parent.wagtail_page_id)
+                    # get the page
+                    page = Page.objects.get(id=obj.wagtail_page_id)
+                    # move the page
+                    page.move(parent_page, pos="last-child")
 
     def update_wagtail_page(self, admin, request, queryset):
         for obj in queryset:

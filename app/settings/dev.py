@@ -14,6 +14,12 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Remove if not required
 INSTALLED_APPS += ["style_guide"]  # noqa F405
 
+# To stop the redirects from being created when a page is moved
+# Use the redirects action in the import action to create the redirects
+# It's likely you would want to set this to True in production
+# e.g. when you are no longer using the import actions
+WAGTAILREDIRECTS_AUTO_CREATE = False
+
 try:
     from .local import *  # noqa F403
 except ImportError:

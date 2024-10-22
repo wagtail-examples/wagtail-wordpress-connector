@@ -43,6 +43,20 @@
         </header>
         {% endblock %}
 
+        <div class="container">
+            {% block navigation %}
+            <div class="grid">
+                {% for subpage in page.get_children.all %}
+
+                    <a href="{{ subpage.url }}">{{ subpage.title }}</a>
+
+                {% endfor %}
+
+            </div>
+
+            {% endblock %}
+        </div>
+
         <main class="container">
             {% block content %}{% endblock %}
         </main>
