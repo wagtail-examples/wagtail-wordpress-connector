@@ -126,6 +126,12 @@ def run():
     subprocess.run(["python", "manage.py", "runserver"], cwd=ROOT)
 
 
+@wt.command()
+def fixtree():
+    """Wagtail: fix the tree"""
+    subprocess.run(["python", "manage.py", "fixtree"], cwd=ROOT)
+
+
 """DJANGO COMMANDS"""
 
 
