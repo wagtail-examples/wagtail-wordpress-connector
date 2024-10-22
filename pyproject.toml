@@ -26,3 +26,5 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 wp = "commands.cli:wp"
+wt = "commands.cli:wt"
+dj = "commands.cli:dj"
