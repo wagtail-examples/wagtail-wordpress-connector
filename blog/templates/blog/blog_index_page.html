@@ -47,4 +47,10 @@
 
     {% endfor %}
 
+    {% if not blogpages %}
+    <article>
+        <p>There are no blog posts to display</p>
+    </article>
+    {% endif %}
+
 {% endblock %}

@@ -7,4 +7,7 @@ register = template.Library()
 
 @register.simple_tag
 def get_blog_index_url():
-    return BlogIndexPage.objects.first().url
+    try:
+        return BlogIndexPage.objects.first().url
+    except AttributeError:
+        return None
