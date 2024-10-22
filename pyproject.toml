@@ -4,18 +4,25 @@ version = "0.1.0"
 description = ""
 authors = ["Nick Moreton <nickmoreton@me.com>"]
 readme = "README.md"
+packages = [
+    { include = "commands", from = "." },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 wagtail = "^6.2.2"
 jmespath = "^1.0.1"
 
-
 [tool.poetry.group.dev.dependencies]
 black = "24.10.0"
 isort = "5.13.2"
 flake8 = "7.1.1"
+click = "8.1.7"
+
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+wp = "commands.cli:wp"

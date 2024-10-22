@@ -1,0 +1,38 @@
+services:
+
+  wordpress:
+    image: wordpress:latest
+    restart: always
+    ports:
+      - 8888:80 # needs to match the port used in init.sh`
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+      - ./init.sh:/var/www/html/bin/init.sh
+      - ./.env:/var/www/html/.env:rw
+      - ./xml:/xml:rw
+      - ./wp-content/plugins:/var/www/html/wp-content/plugins:rw # for plugin development
+      - ./wp-content/uploads:/var/www/html/wp-content/uploads:rw # for media uploads
+      - ./wp-content/themes:/var/www/html/wp-content/themes:rw # for theme development
+      - ./wp-content/upgrade:/var/www/html/wp-content/upgrade:rw # for plugin updates
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:5.7
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  wordpress:
+  db:
