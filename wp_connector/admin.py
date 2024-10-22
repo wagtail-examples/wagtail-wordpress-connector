@@ -454,30 +454,44 @@ class BaseAdmin(admin.ModelAdmin):
 
         return True
 
+    def delete_selected(self, admin, request, queryset):
+        for obj in queryset:
+            obj.delete()
+            self.message_user(
+                request,
+                f"Selected object '{obj}' has been deleted, Wagtail pages have not been deleted.",
+            )
+
     def get_actions(self, request):
         # add the create_wagtail_page action to the list of actions
         # if the model has a TARGET_WAGTAIL_PAGE_MODEL attribute
         actions = super().get_actions(request)
+        del actions["delete_selected"]
         if hasattr(self.model, "WAGTAIL_PAGE_MODEL"):
             actions["create_wagtail_page"] = (
                 self.create_wagtail_page,
                 "create_wagtail_page",
-                "Create Wagtail Page",
+                "Create Selected Wagtail Pages",
             )
             actions["clear_wagtail_page_id"] = (
                 self.clear_wagtail_page_id,
                 "clear_wagtail_page_id",
-                "Clear Wagtail Page ID",
+                "Clear/Delete Selected Wagtail Pages",
             )
             actions["update_wagtail_page"] = (
                 self.update_wagtail_page,
                 "update_wagtail_page",
-                "Update Wagtail Page",
+                "Update Selected Wagtail Pages",
             )
             actions["export_wagtail_redirects"] = (
                 self.export_wagtail_redirects,
                 "export_wagtail_redirects",
-                "Export Wagtail Redirects",
+                "Export Selected Wagtail Redirects",
+            )
+            actions["delete_selected"] = (
+                self.delete_selected,
+                "delete_selected",
+                "Delete Selected",
             )
         return actions
 
