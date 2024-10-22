@@ -165,3 +165,5 @@ cython_debug/
 .DS_Store
 node_modules/
 /media
+wordpress.docker/wp-content
+wordpress.docker/xml
