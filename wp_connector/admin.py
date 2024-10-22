@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.conf import settings
 from django.contrib import admin
 from django.utils.safestring import mark_safe
@@ -119,7 +120,7 @@ class BaseAdmin(admin.ModelAdmin):
             field.name
             for field in self.model._meta.fields
             if field.name in first_fields
-        ]
+        ] + ["id"]
 
         self.list_filter = [  # these fields will be filterable
             field.name
@@ -287,22 +288,46 @@ class BaseAdmin(admin.ModelAdmin):
         first_object_type = queryset[0].type
         # Check if the type of the first object is the same as the type of all the other objects
         if not all(obj.type == first_object_type for obj in queryset):
-            raise ValueError(
-                "The queryset can only contain wordpress pages of either type 'page' or 'post'."
+            self.message_user(
+                request,
+                "All the selected objects must be of the same type",
+                level="ERROR",
             )
+            return
 
         for obj in queryset:
-            result = Exporter(admin, request, obj).do_create_wagtail_page()
-            print(result)
+            if obj.wagtail_page_id:
+                self.message_user(
+                    request,
+                    f"Page already exists for {obj.title}",
+                    level="WARNING",
+                )
+                continue
+            exporter = Exporter(admin, request, obj)
+            if hasattr(exporter, "post_init_messages"):
+                # return the first message as the error message
+                # if there are more errors we don't need to show them yet
+                self.message_user(
+                    request,
+                    exporter.post_init_messages["message"],
+                    level=exporter.post_init_messages["level"],
+                )
+                if exporter.post_init_messages.get("skip", False):
+                    continue
+
+            result = exporter.do_create_wagtail_page()
+            self.message_user(request, result["message"], level=result["level"])
 
         if first_object_type == "page":
             # The page heirarchy is not preserved when creating page types in initial import
             # This is because the parent page may not have been created yet
-            # So we need to update the parent page for all the pages using the move_page method
+            # So we need to update the parent page for all the created pages using the move_page method
+
             # refresh the queryset to pick up the wagtial_page_id's
             queryset = self.model.objects.filter(
                 id__in=queryset.values_list("id", flat=True)
             )
+
             for obj in queryset:
                 if obj.parent:
                     # get the parent page
@@ -313,14 +338,95 @@ class BaseAdmin(admin.ModelAdmin):
                     page.move(parent_page, pos="last-child")
 
     def update_wagtail_page(self, admin, request, queryset):
+        # The queryset can only contain wordpress pages of either type 'page' or 'post'
+        # If it contains a mix of both types, raise an error
+        # Get the type for the first object in the queryset
+        first_object_type = queryset[0].type
+        # Check if the type of the first object is the same as the type of all the other objects
+        if not all(obj.type == first_object_type for obj in queryset):
+            self.message_user(
+                request,
+                "All the selected objects must be of the same type",
+                level="ERROR",
+            )
+            return
+
         for obj in queryset:
-            result = Exporter(admin, request, obj).do_update_wagtail_page()
-            print(result)
+            if not obj.wagtail_page_id:
+                self.message_user(
+                    request,
+                    f"Page doen't exist for {obj.title}",
+                    level="WARNING",
+                )
+                continue
+            exporter = Exporter(admin, request, obj)
+            if hasattr(exporter, "post_init_messages"):
+                # return the first message as the error message
+                # if there are more errors we don't need to show them yet
+                self.message_user(
+                    request,
+                    exporter.post_init_messages["message"],
+                    level=exporter.post_init_messages["level"],
+                )
+                if exporter.post_init_messages.get("skip", False):
+                    continue
+
+            result = exporter.do_update_wagtail_page()
+            self.message_user(request, result["message"], level=result["level"])
+
+        if first_object_type == "page":
+            # The page heirarchy is not preserved when creating page types in initial import
+            # This is because the parent page may not have been created yet
+            # So we need to update the parent page for all the created pages using the move_page method
+
+            # refresh the queryset to pick up the wagtial_page_id's
+            queryset = self.model.objects.filter(
+                id__in=queryset.values_list("id", flat=True)
+            )
+
+            for obj in queryset:
+                if obj.parent:
+                    # get the parent page
+                    parent_page = Page.objects.get(id=obj.parent.wagtail_page_id)
+                    # get the page
+                    page = Page.objects.get(id=obj.wagtail_page_id)
+                    # move the page
+                    page.move(parent_page, pos="last-child")
+                else:
+                    # get the page
+                    page = Page.objects.get(id=obj.wagtail_page_id)
+                    # move the page to the obj WAGTAIL_PAGE_MODEL_PARENT
+                    parent_page_model = apps.get_model(
+                        obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[0],
+                        obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[1],
+                    )
+                    parent_page = parent_page_model.objects.first()
+                    page.move(parent_page, pos="last-child")
 
     def clear_wagtail_page_id(self, admin, request, queryset):
         for obj in queryset:
+            page = Page.objects.filter(id=obj.wagtail_page_id).first()
+
+            if page:
+                if page.get_children():
+                    self.message_user(
+                        request,
+                        f"Page {obj.title} had children, they have also been deleted",
+                        level="WARNING",
+                    )
+                else:
+                    self.message_user(
+                        request, f"Page {obj.title} has been deleted", level="WARNING"
+                    )
+                page.delete()
+            else:
+                self.message_user(
+                    request, f"Page {obj.title} not found", level="WARNING"
+                )
+
             obj.wagtail_page_id = None
             obj.save()
+        self.message_user(request, "Wagtail Page ID's Cleared")
 
     def export_wagtail_redirects(self, admin, request, queryset):
         """

@@ -9,7 +9,6 @@ class WPPost(WordpressModel, ExportableMixin):
     SOURCE_URL = "/wp-json/wp/v2/posts"
     WAGTAIL_PAGE_MODEL = "blog.BlogPage"
     WAGTAIL_PAGE_MODEL_PARENT = "blog.BlogIndexPage"
-    WAGTAIL_REQUIRED_FIELDS = ["title"]
     WAGTAIL_PAGE_MODEL_STEAM_FIELDS = [
         "body",
     ]

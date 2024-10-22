@@ -54,7 +54,6 @@ class Exporter:
     wagtail_page_model_required_fields: list = None
     wagtail_page_model_has_author: bool = False
     wagtail_page_model_has_tags: bool = False
-    required_fields: list = None
     field_mapping: dict = None
 
     def __post_init__(self):
@@ -63,22 +62,26 @@ class Exporter:
             self.obj.WAGTAIL_PAGE_MODEL.split(".")[1],
         )
         self.wagtail_page_model_parent = self.obj.WAGTAIL_PAGE_MODEL_PARENT
-        self.required_fields = self.obj.WAGTAIL_REQUIRED_FIELDS
+
+        # Wagtail always requires a title field value and that fields should
+        # always be included in the field_mapping for a page type
+
+        if "title" not in self.obj.FIELD_MAPPING:
+            self.post_init_messages = {
+                "message": "Title field is required in a FIELD_MAPPING on the wordpress model",
+                "level": "ERROR",
+            }
+            return
+
+        if not self.obj.title:
+            self.post_init_messages = {
+                "message": f"Title field is required in the wordpress model {self.obj.id}",
+                "level": "ERROR",
+                "skip": True,
+            }
+            return
+
         self.field_mapping = self.obj.FIELD_MAPPING
-
-        self.wagtail_page_model_required_fields = [
-            field.name
-            for field in self.wagtail_page_model._meta.fields
-            if field.null is False
-            and field.blank is False
-            and field.name in self.required_fields
-        ]
-
-        self.stream_fields = getattr(
-            self.obj,
-            "WAGTAIL_PAGE_MODEL_STEAM_FIELDS",
-            [],
-        )
 
         if hasattr(self.obj, "author"):
             self.wagtail_page_model_has_author = True
@@ -93,19 +96,16 @@ class Exporter:
             self.wagtail_page_model_parent.split(".")[1],
         ).objects.first()
         if not parent_page:
-            return "No parent page found."
-
-        # Check we have all requied fields
-        if self.fails_required_fields():
-            message = f"Failed to create wordpress object ID:{self.obj.wp_id}"
-            message += " because of missing required fields."
-            return message
+            return {"message": "No parent page found.", "level": "ERROR"}
 
         # The worpress model instance
         wp_instance = self.admin.model.objects.get(wp_id=self.obj.wp_id)
         # Ignore if the wagtail page is already created
         if wp_instance.wagtail_page_id:
-            return f"Wagtail page already created. {wp_instance.wagtail_page_id}"
+            return {
+                "message": f"Wagtail page already created. {wp_instance.title}",
+                "level": "WARNING",
+            }
 
         # Create the wagtail page
         created_wagtail_page = self.wagtail_page_model()
@@ -154,14 +154,19 @@ class Exporter:
         wp_instance.wagtail_page_id = created_wagtail_page.id
         wp_instance.save()
 
-        return f"Created wagtail page ID:{created_wagtail_page.id}"
+        return {
+            "message": f"Created wagtail page ID:{created_wagtail_page.id}",
+            "level": "SUCCESS",
+        }
 
     def do_update_wagtail_page(self):
-        # Check we have all requied fields
-        if self.fails_required_fields():
-            message = f"Failed to update wordpress object ID:{self.obj.wp_id}"
-            message += " because of missing required fields."
-            return message
+        # The wagtail parent page
+        parent_page = apps.get_model(
+            self.wagtail_page_model_parent.split(".")[0],
+            self.wagtail_page_model_parent.split(".")[1],
+        ).objects.first()
+        if not parent_page:
+            return {"message": "No parent page found.", "level": "ERROR"}
 
         # The worpress model instance
         wp_instance = self.admin.model.objects.get(wp_id=self.obj.wp_id)
@@ -215,10 +220,7 @@ class Exporter:
         # Dont' update the wagtail page ID here
         # once they are reated they should not change
 
-        return f"Updated wagtail page ID:{updated_wagtail_page.id}"
-
-    def fails_required_fields(self):
-        return any(
-            not getattr(self.obj, field)
-            for field in self.wagtail_page_model_required_fields
-        )
+        return {
+            "message": f"Updated wagtail page ID:{updated_wagtail_page.id}",
+            "level": "SUCCESS",
+        }

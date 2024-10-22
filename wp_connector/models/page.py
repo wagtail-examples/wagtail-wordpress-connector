@@ -9,7 +9,6 @@ class WPPage(WordpressModel, ExportableMixin):
     SOURCE_URL = "/wp-json/wp/v2/pages"
     WAGTAIL_PAGE_MODEL = "home.StandardPage"
     WAGTAIL_PAGE_MODEL_PARENT = "home.HomePage"
-    WAGTAIL_REQUIRED_FIELDS = ["title"]
     WAGTAIL_PAGE_MODEL_STEAM_FIELDS = [
         # "body",
     ]
