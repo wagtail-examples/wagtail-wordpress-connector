@@ -37,6 +37,17 @@ class BaseAdmin(admin.ModelAdmin):
     4. add some links to open the original wordpress content
     """
 
+    readonly_fields = [
+        "wp_id",
+        "wagtail_page_id",
+        "wp_foreign_keys",
+        "wp_many_to_many_keys",
+        "wagtail_model",
+        "wp_cleaned_content",
+        "wp_block_content",
+        # add any other field you need to protect from editing
+    ]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -66,7 +77,6 @@ class BaseAdmin(admin.ModelAdmin):
             "wagtail_model",
             "wp_block_content",
             "id",
-            "wagtail_page_id",
         ]
 
         # these fields will have content truncated
@@ -108,6 +118,13 @@ class BaseAdmin(admin.ModelAdmin):
             "source_url",
         ]
 
+        # these fields will be displayed as a link to the
+        # wagtail content
+        wagtailadmin_link_fields = [
+            "wagtail_page_id",
+        ]
+
+        # these fields will be filterable
         filter_fields = [
             "parent",
             "status",
@@ -116,18 +133,21 @@ class BaseAdmin(admin.ModelAdmin):
             "count",
         ]
 
-        self.search_fields = [  # these fields will be searchable
+        # searchable fields
+        self.search_fields = [
             field.name
             for field in self.model._meta.fields
             if field.name in first_fields
-        ] + ["id"]
+        ] + ["id", "wagtail_page_id"]
 
-        self.list_filter = [  # these fields will be filterable
+        # filterable by these fields
+        self.list_filter = [
             field.name
             for field in self.model._meta.fields
             if field.name in filter_fields
         ]
 
+        # set the list_display fields
         self.list_display = self.coerce_list_display_fields(
             self.model,
             remove_fields,
@@ -135,6 +155,7 @@ class BaseAdmin(admin.ModelAdmin):
             last_fields,
             truncated_fields,
             link_fields,
+            wagtailadmin_link_fields,
             rename_columns,
         )
 
@@ -146,6 +167,7 @@ class BaseAdmin(admin.ModelAdmin):
         last_fields,
         truncated_fields,
         link_fields,
+        wagtailadmin_link_fields,
         rename_columns,
     ):
         """
@@ -158,6 +180,8 @@ class BaseAdmin(admin.ModelAdmin):
             last_fields (list): Fields to display last.
             truncated_fields (list): Fields to truncate.
             link_fields (list): Fields to display as a link.
+            wagtailadmin_link_fields (list): Fields to display as a link to the wagtail admin.
+            rename_columns (list): Field columns to rename.
 
         Returns:
             list: The list_display fields.
@@ -208,6 +232,13 @@ class BaseAdmin(admin.ModelAdmin):
             if field in fields:
                 position = fields.index(field)
                 fields.insert(position, f"get_renamed_{field}")
+                fields.remove(field)
+
+        # add a link to the wagtail admin edit page
+        for field in wagtailadmin_link_fields:
+            if field in fields:
+                position = fields.index(field)
+                fields.insert(position, f"get_link_{field}")
                 fields.remove(field)
 
         return fields
@@ -281,12 +312,27 @@ class BaseAdmin(admin.ModelAdmin):
         source_url = f'<a href="{source_url}" target="_blank">Open</a>'
         return mark_safe(source_url)
 
+    def get_link_wagtail_page_id(self, obj):
+        # create a link to the wagtail admin edit page
+        if obj.wagtail_page_id:
+            link = f"/admin/pages/{obj.wagtail_page_id}/edit/"
+            link = f'<a href="{link}">[{obj.wagtail_page_id}]</a>'
+            return mark_safe(link)
+
     def create_wagtail_page(self, admin, request, queryset):
+        """
+        Loop through the selected wordpress objects and create a wagtail page
+
+        If the wordpress object already has a wagtail_page_id, skip it
+        If the wordpress object has a parent, move the created page to the parent
+        """
         # The queryset can only contain wordpress pages of either type 'page' or 'post'
         # If it contains a mix of both types, raise an error
+
         # Get the type for the first object in the queryset
         first_object_type = queryset[0].type
-        # Check if the type of the first object is the same as the type of all the other objects
+
+        # Check all objects in the queryset are of the same type
         if not all(obj.type == first_object_type for obj in queryset):
             self.message_user(
                 request,
@@ -296,14 +342,18 @@ class BaseAdmin(admin.ModelAdmin):
             return
 
         for obj in queryset:
+            # skip objects that already have a wagtail_page_id
+            # the action to perform on the is to update the page
             if obj.wagtail_page_id:
                 self.message_user(
                     request,
-                    f"Page already exists for {obj.title}",
+                    f"Page already exists for {obj.title}. Use the 'Update Existing Wagtail Pages' action",
                     level="WARNING",
                 )
                 continue
+
             exporter = Exporter(admin, request, obj)
+
             if hasattr(exporter, "post_init_messages"):
                 # return the first message as the error message
                 # if there are more errors we don't need to show them yet
@@ -319,9 +369,9 @@ class BaseAdmin(admin.ModelAdmin):
             self.message_user(request, result["message"], level=result["level"])
 
         if first_object_type == "page":
-            # The page heirarchy is not preserved when creating page types in initial import
-            # This is because the parent page may not have been created yet
-            # So we need to update the parent page for all the created pages using the move_page method
+            # The wagtail page heirarchy is not set when creating page types in initial import
+            # becuase the parent page may not have been created yet
+            # So update the parent page for all the created pages using the move_page method
 
             # refresh the queryset to pick up the wagtial_page_id's
             queryset = self.model.objects.filter(
@@ -329,20 +379,33 @@ class BaseAdmin(admin.ModelAdmin):
             )
 
             for obj in queryset:
+                # operate on records that have a parent indictaed in the wordpress data
+                # parent field, it's a foreign key to the same model
                 if obj.parent:
-                    # get the parent page
+                    # get the wagtail parent page instance
+                    # indicated by the wordpress parent's wagtail_page_id
                     parent_page = Page.objects.get(id=obj.parent.wagtail_page_id)
-                    # get the page
+
+                    # get the page which is about to be moved
                     page = Page.objects.get(id=obj.wagtail_page_id)
+
                     # move the page
                     page.move(parent_page, pos="last-child")
 
     def update_wagtail_page(self, admin, request, queryset):
+        """
+        Loop through the selected wordpress objects and update the wagtail page
+
+        If the wordpress object does not have a wagtail_page_id, skip it
+        If the wordpress object has a parent, move the updated page to the new parent
+        """
         # The queryset can only contain wordpress pages of either type 'page' or 'post'
         # If it contains a mix of both types, raise an error
+
         # Get the type for the first object in the queryset
         first_object_type = queryset[0].type
-        # Check if the type of the first object is the same as the type of all the other objects
+
+        # Check all objects in the queryset are of the same type
         if not all(obj.type == first_object_type for obj in queryset):
             self.message_user(
                 request,
@@ -352,14 +415,18 @@ class BaseAdmin(admin.ModelAdmin):
             return
 
         for obj in queryset:
+            # skip objects that do not have a wagtail_page_id
+            # the action to perform on the is to create the page
             if not obj.wagtail_page_id:
                 self.message_user(
                     request,
-                    f"Page doen't exist for {obj.title}",
+                    f"Page doen't exist for {obj.title} yet. Use the 'Create New Wagtail Pages' action",
                     level="WARNING",
                 )
                 continue
+
             exporter = Exporter(admin, request, obj)
+
             if hasattr(exporter, "post_init_messages"):
                 # return the first message as the error message
                 # if there are more errors we don't need to show them yet
@@ -375,8 +442,7 @@ class BaseAdmin(admin.ModelAdmin):
             self.message_user(request, result["message"], level=result["level"])
 
         if first_object_type == "page":
-            # The page heirarchy is not preserved when creating page types in initial import
-            # This is because the parent page may not have been created yet
+            # The page heirarchy is not alterred when updaing 'page' types
             # So we need to update the parent page for all the created pages using the move_page method
 
             # refresh the queryset to pick up the wagtial_page_id's
@@ -385,26 +451,49 @@ class BaseAdmin(admin.ModelAdmin):
             )
 
             for obj in queryset:
+                # operate on records that have a parent indictaed in the wordpress data
+                # parent field, it's a foreign key to the same model
                 if obj.parent:
-                    # get the parent page
+                    # get the wagtail parent page instance
+                    # indicated by the wordpress parent's wagtail_page_id
                     parent_page = Page.objects.get(id=obj.parent.wagtail_page_id)
-                    # get the page
+
+                    # get the page which is about to be moved
                     page = Page.objects.get(id=obj.wagtail_page_id)
+
                     # move the page
                     page.move(parent_page, pos="last-child")
                 else:
+                    # the page my no longer have a parent page
+                    # so move it to the page inticated by the WAGTAIL_PAGE_MODEL_PARENT
+
                     # get the page
                     page = Page.objects.get(id=obj.wagtail_page_id)
+
                     # move the page to the obj WAGTAIL_PAGE_MODEL_PARENT
                     parent_page_model = apps.get_model(
                         obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[0],
                         obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[1],
                     )
+                    # get the first parent page
                     parent_page = parent_page_model.objects.first()
+
+                    # move the page
                     page.move(parent_page, pos="last-child")
 
     def delete_wagtail_page_id(self, admin, request, queryset):
+        """
+        Loop through the selected wordpress objects and delete the wagtail page
+        if it has a wagtail_page_id
+
+        Also clear the wagtail_page_id from the wordpress object
+
+        Pages without a wagtail_page_id will be skipped.
+
+        If the wordpress record is the only object to delete then use the Delete Wordpress Records action
+        """
         for obj in queryset:
+            # only operate on pages that have a wagtail_page_id
             page = Page.objects.filter(id=obj.wagtail_page_id).first()
 
             if page:
@@ -424,8 +513,10 @@ class BaseAdmin(admin.ModelAdmin):
                     request, f"Page {obj.title} not found", level="WARNING"
                 )
 
+            # clear the wagtail_page_id from the wordpress object
             obj.wagtail_page_id = None
             obj.save()
+
         self.message_user(request, "Wagtail Page ID's Cleared")
 
     def create_wagtail_redirects(self, admin, request, queryset):
@@ -455,6 +546,11 @@ class BaseAdmin(admin.ModelAdmin):
         return True
 
     def delete_selected(self, admin, request, queryset):
+        """
+        Delete the selected wordpress objects
+
+        This action doesn't delete the wagtail pages
+        """
         for obj in queryset:
             obj.delete()
             self.message_user(
@@ -505,6 +601,7 @@ class BaseAdmin(admin.ModelAdmin):
     get_link_guid.short_description = "Guid"
     get_link_link.short_description = "Link"
     get_link_source_url.short_description = "Source Url"
+    get_link_wagtail_page_id.short_description = "Wagtail Page"
     get_renamed_id.short_description = "Import ID"
 
 
