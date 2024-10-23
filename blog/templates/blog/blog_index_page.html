@@ -55,4 +55,33 @@
     </article>
     {% endif %}
 
+    {% if blogpages.has_other_pages %}
+    <nav>
+        <ul class="pagination">
+            <li><a href="?page=1" role="button">First Page</a></li>
+          {% if blogpages.has_previous %}
+            <li><a href="?page={{ blogpages.previous_page_number }}" role="button">&laquo;</a></li>
+          {% else %}
+            <li><a role="button" disabled>&laquo;</a></li>
+          {% endif %}
+          {% for i in blogpages.paginator.page_range %}
+            {% if blogpages.number == i %}
+              <li disabled role="button" class="secondary"><span>{{ i }}</span></li>
+            {% else %}
+              <li><a href="?page={{ i }}" role="button">{{ i }}</a></li>
+            {% endif %}
+          {% endfor %}
+          {% if blogpages.has_next %}
+            <li><a href="?page={{ blogpages.next_page_number }}" role="button">&raquo;</a></li>
+          {% else %}
+            <li><a role="button" disabled>&raquo;</a></li>
+          {% endif %}
+          <li><a href="?page={{ total_pages }}" role="button">Last Page</a></li>
+        </ul>
+        <ul>
+            <li>Total Blog Posts: {{ blogpages.paginator.count }}</li>
+        </ul>
+    </nav>
+  {% endif %}
+
 {% endblock %}
