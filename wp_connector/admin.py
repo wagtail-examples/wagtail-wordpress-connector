@@ -454,6 +454,7 @@ class BaseAdmin(admin.ModelAdmin):
                     exporter.post_init_messages["message"],
                     level=exporter.post_init_messages["level"],
                 )
+
                 if exporter.post_init_messages.get("skip", False):
                     continue
 
