@@ -403,7 +403,7 @@ class BaseAdmin(admin.ModelAdmin):
                     parent_page = parent_page_model.objects.first()
                     page.move(parent_page, pos="last-child")
 
-    def clear_wagtail_page_id(self, admin, request, queryset):
+    def delete_wagtail_page_id(self, admin, request, queryset):
         for obj in queryset:
             page = Page.objects.filter(id=obj.wagtail_page_id).first()
 
@@ -428,7 +428,7 @@ class BaseAdmin(admin.ModelAdmin):
             obj.save()
         self.message_user(request, "Wagtail Page ID's Cleared")
 
-    def export_wagtail_redirects(self, admin, request, queryset):
+    def create_wagtail_redirects(self, admin, request, queryset):
         """
         Export the wagtail redirects for the selected wordpress objects
 
@@ -471,27 +471,27 @@ class BaseAdmin(admin.ModelAdmin):
             actions["create_wagtail_page"] = (
                 self.create_wagtail_page,
                 "create_wagtail_page",
-                "Create Selected Wagtail Pages",
-            )
-            actions["clear_wagtail_page_id"] = (
-                self.clear_wagtail_page_id,
-                "clear_wagtail_page_id",
-                "Clear/Delete Selected Wagtail Pages",
+                "Create New Wagtail Pages from selected",
             )
             actions["update_wagtail_page"] = (
                 self.update_wagtail_page,
                 "update_wagtail_page",
-                "Update Selected Wagtail Pages",
+                "Update Existing Wagtail Pages from selected",
             )
-            actions["export_wagtail_redirects"] = (
-                self.export_wagtail_redirects,
-                "export_wagtail_redirects",
-                "Export Selected Wagtail Redirects",
+            actions["create_wagtail_redirects"] = (
+                self.create_wagtail_redirects,
+                "create_wagtail_redirects",
+                "Create Wagtail Redirects from selected",
+            )
+            actions["delete_wagtail_page_id"] = (
+                self.delete_wagtail_page_id,
+                "delete_wagtail_page_id",
+                "Delete Existing Wagtail Pages from selected",
             )
             actions["delete_selected"] = (
                 self.delete_selected,
                 "delete_selected",
-                "Delete Selected",
+                "Delete Wordpress Records from selected",
             )
         return actions
 
