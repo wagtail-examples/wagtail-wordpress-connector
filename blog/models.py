@@ -3,6 +3,7 @@ from django.db import models
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
+from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import (
     FieldPanel,
     InlinePanel,
@@ -10,7 +11,6 @@ from wagtail.admin.panels import (
     TabbedInterface,
     TitleFieldPanel,
 )
-from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
 
