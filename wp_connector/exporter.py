@@ -255,27 +255,21 @@ class HTML_to_Streamfield:
     Convert HTML to Streamfield JSON
     """
 
-    html: str = None
+    html: str = ""
 
     stream_data: List = field(default_factory=list)
 
     def __post_init__(self):
-        if not self.html:
-            raise ValueError("HTML is required")
         self.stream_data = self.parse_html_to_streamfield_json()
         print(self.stream_data)
 
     def parse_html_to_streamfield_json(self):
         soup = bs(self.html, "html.parser")
-        data = []
-        for tag in soup.find_all():
-            data.append(
-                {
-                    "type": "paragraph",
-                    "value": tag.text,
-                }
-            )
-        return data
+        cache = []
+        for tag in soup.find_all():  # top level tags
+            if len(cache == 0):
+                cache.append({"type": "paragraph", "value": tag.text})
+        return cache
 
     def get_stream_data(self):
         return json.dumps(self.stream_data)
