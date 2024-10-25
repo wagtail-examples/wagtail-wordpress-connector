@@ -5,6 +5,8 @@ from wagtail.models import Page
 from home.blocks import StreamBlocks
 from wp_connector.field_panels import WordpressInfoPanel
 
+from .blocks import StreamBlock
+
 
 class HomePage(Page):
     pass
