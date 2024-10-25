@@ -1,5 +1,8 @@
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, field
+from typing import List
 
+from bs4 import BeautifulSoup as bs
 from django.apps import apps
 from taggit.models import Tag
 
@@ -53,6 +56,7 @@ class Exporter:
     wagtail_page_model_has_author: bool = False
     wagtail_page_model_has_tags: bool = False
     wagtail_page_model_has_categories: bool = False
+    wagtail_page_model_streamfields: List = field(default_factory=list)
     field_mapping: dict = None
 
     # this takes precedence over the field_mapping
@@ -243,3 +247,35 @@ class Exporter:
             "message": f"Updated wagtail page ID:{wagtail_page.id}",
             "level": "SUCCESS",
         }
+
+
+@dataclass
+class HTML_to_Streamfield:
+    """
+    Convert HTML to Streamfield JSON
+    """
+
+    html: str = None
+
+    stream_data: List = field(default_factory=list)
+
+    def __post_init__(self):
+        if not self.html:
+            raise ValueError("HTML is required")
+        self.stream_data = self.parse_html_to_streamfield_json()
+        print(self.stream_data)
+
+    def parse_html_to_streamfield_json(self):
+        soup = bs(self.html, "html.parser")
+        data = []
+        for tag in soup.find_all():
+            data.append(
+                {
+                    "type": "paragraph",
+                    "value": tag.text,
+                }
+            )
+        return data
+
+    def get_stream_data(self):
+        return json.dumps(self.stream_data)
