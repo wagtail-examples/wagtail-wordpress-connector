@@ -3,13 +3,13 @@ from django.db import models
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
-from wagtail import blocks
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
 
+from home.blocks import StreamBlocks
 from wp_connector.field_panels import WordpressInfoPanel
 
 
@@ -88,9 +88,7 @@ class BlogPage(Page):
     date = models.DateField("Post date")
     intro = RichTextField(blank=True)
     body = StreamField(
-        [
-            ("paragraph", blocks.RichTextBlock()),
-        ],
+        StreamBlocks(),
         blank=True,
     )
     author = models.ForeignKey(
