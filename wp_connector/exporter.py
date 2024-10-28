@@ -49,12 +49,17 @@ class Exporter:
     request: object
     obj: object
 
-    # Class attributes
+    # Configurations
     wagtail_page_model: object = None
     wagtail_page_model_required_fields: list = None
     wagtail_page_model_has_author: bool = False
     wagtail_page_model_has_tags: bool = False
     field_mapping: dict = None
+
+    # this takes precedence over the field_mapping
+    # if the field is in the stream_field_mapping
+    # it will also need an entry in the field_mapping
+    stream_field_mapping: dict = None
 
     def __post_init__(self):
         self.wagtail_page_model = apps.get_model(
@@ -82,6 +87,7 @@ class Exporter:
             return
 
         self.field_mapping = self.obj.FIELD_MAPPING
+        self.stream_field_mapping = self.obj.get_streamfield_mapping()
 
         if hasattr(self.obj, "author"):
             self.wagtail_page_model_has_author = True
@@ -111,14 +117,31 @@ class Exporter:
         created_wagtail_page = self.wagtail_page_model()
         # Set all the fields
         for wp_field, wagtail_field in self.field_mapping.items():
-            setattr(
-                created_wagtail_page,
-                wagtail_field,
-                getattr(
-                    self.obj,
-                    wp_field,
-                ),
-            )
+            if self.stream_field_mapping and wp_field in self.stream_field_mapping:
+                stream_field = self.stream_field_mapping[wp_field]
+                setattr(
+                    created_wagtail_page,
+                    stream_field,
+                    [
+                        {  # This just dumps all the content into a single paragraph block
+                            # for the moment
+                            "type": "paragraph",
+                            "value": getattr(
+                                self.obj,
+                                wp_field,
+                            ),
+                        }
+                    ],
+                )
+            else:
+                setattr(
+                    created_wagtail_page,
+                    wagtail_field,
+                    getattr(
+                        self.obj,
+                        wp_field,
+                    ),
+                )
 
         # Set the AUTHOR if the page model has an author
         # Do this before the page is published
@@ -179,14 +202,31 @@ class Exporter:
         )
         # Set all the fields
         for wp_field, wagtail_field in self.field_mapping.items():
-            setattr(
-                updated_wagtail_page,
-                wagtail_field,
-                getattr(
-                    self.obj,
-                    wp_field,
-                ),
-            )
+            if self.stream_field_mapping and wp_field in self.stream_field_mapping:
+                stream_field = self.stream_field_mapping[wp_field]
+                setattr(
+                    updated_wagtail_page,
+                    stream_field,
+                    [
+                        {  # This just dumps all the content into a single paragraph block
+                            # for the moment
+                            "type": "paragraph",
+                            "value": getattr(
+                                self.obj,
+                                wp_field,
+                            ),
+                        }
+                    ],
+                )
+            else:
+                setattr(
+                    updated_wagtail_page,
+                    wagtail_field,
+                    getattr(
+                        self.obj,
+                        wp_field,
+                    ),
+                )
 
         # Set the AUTHOR if the page model has an author
         # Do this before the page is published

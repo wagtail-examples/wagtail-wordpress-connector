@@ -9,14 +9,16 @@ class WPPost(WordpressModel, ExportableMixin, StreamFieldMixin):
     SOURCE_URL = "/wp-json/wp/v2/posts"
     WAGTAIL_PAGE_MODEL = "blog.BlogPage"
     WAGTAIL_PAGE_MODEL_PARENT = "blog.BlogIndexPage"
-    WAGTAIL_PAGE_MODEL_STEAM_FIELDS = [
-        "body",
-    ]
+
     FIELD_MAPPING = {
         "title": "title",
         "content": "body",
         "excerpt": "intro",
         "date": "date",
+    }
+
+    STREAMFIELD_MAPPING = {
+        "content": "body",
     }
 
     title = models.CharField(max_length=255)

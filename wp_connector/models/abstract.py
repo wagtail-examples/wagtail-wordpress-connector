@@ -116,8 +116,8 @@ class StreamFieldMixin:
                 + "Model must have a TARGET_WAGTAIL_PAGE_MODEL attribute",
             )
 
-    WAGTAIL_STREAMFIELD_MAPPING = []  # e.g. [{[object_field]: [wagtail_field]}]
+    STREAMFIELD_MAPPING = {}  # e.g. {[object_field]: [wagtail_field]}
 
     def get_streamfield_mapping(self):
         """Get the streamfield mapping for the Wordpress object."""
-        return self.WAGTAIL_STREAMFIELD_MAPPING
+        return self.STREAMFIELD_MAPPING
