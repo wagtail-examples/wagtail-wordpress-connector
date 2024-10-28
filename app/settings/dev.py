@@ -20,6 +20,9 @@ INSTALLED_APPS += ["style_guide"]  # noqa F405
 # e.g. when you are no longer using the import actions
 WAGTAILREDIRECTS_AUTO_CREATE = False
 
+# Cooment out if you need to use timezone aware datetimes
+USE_TZ = False
+
 try:
     from .local import *  # noqa F403
 except ImportError:
