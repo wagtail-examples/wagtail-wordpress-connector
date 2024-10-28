@@ -25,10 +25,24 @@ class StreamFieldable:
         streamdata = []
 
         for tag in soup.find_all(recursive=False):
-            # For now just make each/any top level tag a paragraph block
-            # Later consecutive paragraph blocks can be merged
-            if not tag.text:
+            item = tag
+
+            if not item.text:
                 continue
-            streamdata.append({"type": "paragraph", "value": f"{tag}"})
+
+            # If streamdata is empty add the first tag
+            if not streamdata:
+                streamdata.append({"type": "paragraph", "value": f"{item}"})
+                continue
+
+            # If the last item in streamdata is a paragraph and this item is a paragraph
+            # then append the text to the last streamdata item value
+
+            if streamdata[-1]["type"] == "paragraph" and item.name == "p":
+                streamdata[-1]["value"] += f"{item}"
+                continue
+
+            # otherise add the item as a new streamdata item
+            streamdata.append({"type": "paragraph", "value": f"{item}"})
 
         return json.dumps(streamdata)
