@@ -1,9 +1,9 @@
 from django.db import models
 
-from .abstract import ExportableMixin, WordpressModel
+from .abstract import ExportableMixin, StreamFieldMixin, WordpressModel
 
 
-class WPPost(WordpressModel, ExportableMixin):
+class WPPost(WordpressModel, ExportableMixin, StreamFieldMixin):
     """Model definition for Post."""
 
     SOURCE_URL = "/wp-json/wp/v2/posts"

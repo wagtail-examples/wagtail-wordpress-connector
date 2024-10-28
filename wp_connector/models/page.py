@@ -1,9 +1,9 @@
 from django.db import models
 
-from .abstract import ExportableMixin, WordpressModel
+from .abstract import ExportableMixin, StreamFieldMixin, WordpressModel
 
 
-class WPPage(WordpressModel, ExportableMixin):
+class WPPage(WordpressModel, ExportableMixin, StreamFieldMixin):
     """Model definition for Page."""
 
     SOURCE_URL = "/wp-json/wp/v2/pages"
