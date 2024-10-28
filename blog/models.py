@@ -4,7 +4,7 @@ from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
 from wagtail import blocks
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
@@ -110,8 +110,12 @@ class BlogPage(Page):
         WordpressInfoPanel(content="wp_connector.WPPost"),
         MultiFieldPanel(
             [
-                FieldPanel("date"),
-                FieldPanel("author"),
+                FieldRowPanel(
+                    [
+                        FieldPanel("date"),
+                        FieldPanel("author"),
+                    ]
+                ),
                 FieldPanel("tags"),
             ],
             heading="Blog information",
