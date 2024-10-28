@@ -1,27 +1,34 @@
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, field
 
-from django.apps import apps
+from bs4 import BeautifulSoup as bs
 
 
 @dataclass
 class StreamFieldable:
     """
-    Updates a Wagtail page with StreamFields.
-
-    Only operates on StreamField instances.
+    Produes a Stremfidl value for goven html content
     """
 
-    wagtail_page_id: int
-    wordpress_model: object
+    content: str
+    streamdata: json = field(init=False)
 
     def __post_init__(self):
-        self.wagtail_page = (
-            apps.get_model("wagtailcore.Page")
-            .objects.filter(
-                id=self.wagtail_page_id,
-            )
-            .first()
-        )
+        self.streamdata = self.get_streamdata()
 
-        if not self.wagtail_page:
-            raise ValueError("Wagtail page not found.")
+    def get_streamdata(self):
+        """
+        Create stream data from html content
+        """
+        soup = bs(self.content, "html.parser")
+
+        streamdata = []
+
+        for tag in soup.find_all(recursive=False):
+            # For now just make each/any top level tag a paragraph block
+            # Later consecutive paragraph blocks can be merged
+            if not tag.text:
+                continue
+            streamdata.append({"type": "paragraph", "value": f"{tag}"})
+
+        return json.dumps(streamdata)

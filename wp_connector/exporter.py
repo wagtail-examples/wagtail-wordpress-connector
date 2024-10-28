@@ -4,6 +4,7 @@ from django.apps import apps
 from taggit.models import Tag
 
 from blog.models import Author
+from wp_connector.streamfieldable import StreamFieldable
 
 # TODO: Better logging of messages
 
@@ -119,19 +120,16 @@ class Exporter:
         for wp_field, wagtail_field in self.field_mapping.items():
             if self.stream_field_mapping and wp_field in self.stream_field_mapping:
                 stream_field = self.stream_field_mapping[wp_field]
+                streamdata = StreamFieldable(
+                    content=getattr(
+                        self.obj,
+                        wp_field,
+                    ),
+                )
                 setattr(
                     created_wagtail_page,
                     stream_field,
-                    [
-                        {  # This just dumps all the content into a single paragraph block
-                            # for the moment
-                            "type": "paragraph",
-                            "value": getattr(
-                                self.obj,
-                                wp_field,
-                            ),
-                        }
-                    ],
+                    streamdata.streamdata,
                 )
             else:
                 setattr(
@@ -204,19 +202,16 @@ class Exporter:
         for wp_field, wagtail_field in self.field_mapping.items():
             if self.stream_field_mapping and wp_field in self.stream_field_mapping:
                 stream_field = self.stream_field_mapping[wp_field]
+                streamdata = StreamFieldable(
+                    content=getattr(
+                        self.obj,
+                        wp_field,
+                    ),
+                )
                 setattr(
                     updated_wagtail_page,
                     stream_field,
-                    [
-                        {  # This just dumps all the content into a single paragraph block
-                            # for the moment
-                            "type": "paragraph",
-                            "value": getattr(
-                                self.obj,
-                                wp_field,
-                            ),
-                        }
-                    ],
+                    streamdata.streamdata,
                 )
             else:
                 setattr(
