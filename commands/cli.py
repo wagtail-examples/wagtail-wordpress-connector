@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-import click
+import rich_click as click
 
 # constants
 ROOT = Path(__file__).parent.parent
@@ -13,17 +13,56 @@ DC = "docker-compose"
 
 @click.group()
 def wp():
-    """CLI for wordpress"""
+    """
+    CLI for setting up a wordpress container that manages:
+
+    - the wordpress installation
+
+    - the plugins
+
+    - the demo data
+
+    """
 
 
 @click.group()
 def wt():
-    """CLI for wagtail"""
+    """
+    CLI for the wagtail site that manages:
+
+    - migrations
+
+    - superuser creation
+
+    - running the server
+
+    - fixing the tree command
+    """
 
 
 @click.group()
 def dj():
-    """CLI for django"""
+    """
+    CLI for the django admin site that manages:
+
+    - importing data from wordpress
+
+    - importing authors
+
+    - importing categories
+
+    - importing tags
+
+    - importing pages
+
+    - importing posts
+
+    - importing media
+
+    - importing comments
+
+    - importing all data
+    """
 
 
 """WORDPRESS COMMANDS"""

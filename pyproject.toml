@@ -12,12 +12,13 @@ packages = [
 python = "^3.10"
 wagtail = "^6.2.2"
 jmespath = "^1.0.1"
+requests = "^2.32.3"
+rich-click = "^1.8.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.10.0"
 isort = "5.13.2"
 flake8 = "7.1.1"
-click = "8.1.7"
 
 
 [build-system]
@@ -28,3 +29,5 @@ build-backend = "poetry.core.masonry.api"
 wp = "commands.cli:wp"
 wt = "commands.cli:wt"
 dj = "commands.cli:dj"
+
+i = "commands.inspector:i"
