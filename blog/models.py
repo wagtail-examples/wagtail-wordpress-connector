@@ -3,8 +3,9 @@ from django.db import models
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
+from wagtail import blocks
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
-from wagtail.fields import RichTextField
+from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
@@ -86,7 +87,12 @@ class BlogPageTag(TaggedItemBase):
 class BlogPage(Page):
     date = models.DateField("Post date")
     intro = RichTextField(blank=True)
-    body = RichTextField(blank=True)
+    body = StreamField(
+        [
+            ("paragraph", blocks.RichTextBlock()),
+        ],
+        blank=True,
+    )
     author = models.ForeignKey(
         "blog.Author",
         blank=True,
