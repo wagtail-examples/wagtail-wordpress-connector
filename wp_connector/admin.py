@@ -5,6 +5,8 @@ from django.utils.safestring import mark_safe
 from wagtail.contrib.redirects.models import Redirect
 from wagtail.models import Page
 
+from wp_connector.anchoriser import Anchoriser
+
 from .exporter import Exporter
 from .models import WPAuthor, WPCategory, WPComment, WPMedia, WPPage, WPPost, WPTag
 
@@ -341,6 +343,10 @@ class BaseAdmin(admin.ModelAdmin):
             )
             return
 
+        cached_objects = (
+            set()
+        )  # use these for upadtes needed after the pages are created
+
         for obj in queryset:
             # skip objects that already have a wagtail_page_id
             # the action to perform on the is to update the page
@@ -364,6 +370,8 @@ class BaseAdmin(admin.ModelAdmin):
                 )
                 if exporter.post_init_messages.get("skip", False):
                     continue
+
+            cached_objects.add(obj)
 
             result = exporter.do_create_wagtail_page()
             self.message_user(request, result["message"], level=result["level"])
@@ -391,6 +399,12 @@ class BaseAdmin(admin.ModelAdmin):
 
                     # move the page
                     page.move(parent_page, pos="last-child")
+
+        # Now the page heirarchy is set, we can dwela with updating the streamfield anchor links.
+        # Above we need to cache the page objects created so we can loop through them and update the anchor links
+        for obj in cached_objects:
+            anchoriser = Anchoriser(obj)
+            anchoriser.anchorise()
 
     def update_wagtail_page(self, admin, request, queryset):
         """
