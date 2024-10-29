@@ -105,3 +105,19 @@ class ExportableMixin:
     WAGTAIL_PAGE_MODEL_PARENT = None  # e.g. "blog.BlogIndexPage"
     FIELD_MAPPING = {}  # e.g. {"title": "title"} {[object_field]: [wagtail_field]}
     WAGTAIL_REQUIRED_FIELDS = []  # e.g. ["title"] [wagtail_field]
+
+
+class StreamFieldMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.WAGTAIL_PAGE_MODEL:
+            raise NotImplementedError(
+                self._meta.object_name
+                + "Model must have a TARGET_WAGTAIL_PAGE_MODEL attribute",
+            )
+
+    STREAMFIELD_MAPPING = {}  # e.g. {[object_field]: [wagtail_field]}
+
+    def get_streamfield_mapping(self):
+        """Get the streamfield mapping for the Wordpress object."""
+        return self.STREAMFIELD_MAPPING

@@ -1,6 +1,30 @@
 # Experimental Wagtail Wordess Importer
 
-This is a importer for WordPress XML files into Wagtail. It is a work in progress and is not yet ready for production use.
+This is an experimental project to import WordPress page and posts into Wagtail. It is a work in progress and is not yet ready for production use.
+
+## Requirements
+
+- Python 3.10+
+- Poetry
+- Docker
+- WordPress CLI
+- Wordpress Theme Test Data
+- Wagtail
+- Django
+- Lots of patience :)
+
+## Overall Plan
+
+The plan is to create a WordPress importer that can import WordPress pages and posts into Wagtail.
+
+The importer will be a Django management command that will import the data from a WordPress instance and provide a basic admin interface using the django-admin to select and export the data to Wagtail. (posts and pages only at this time, but linked data such as authors, categories, tags, etc. will alos be exported to Wagtail snippets and taggit tags)
+
+A docker container will be used to run a test WordPress instance with a theme and test data. The WordPress CLI will be used to manage the WordPress instance.
+The wordpress instance has it's JSON api enabled so the importer can access the data.
+
+The action of transferring the data to Wagtail will done using Django admin actions that export the data to Wagtail. This way the Wagtail site will have no dependency on the WordPress instance and all code will be contained in the wp_connector module. Then once all data is transferred the wp_connector migrations can be rolled back and the module can be removed.
+
+The only module that should be added to your final production site, for creating the page and posts ion Wagtail, is the `wp_connector` module, add some temporary configuration to Wagtail and run the importer against your own live WordPress instance, whcih will need it's JSON api enabled.
 
 ## Set Up
 

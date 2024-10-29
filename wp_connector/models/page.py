@@ -1,21 +1,23 @@
 from django.db import models
 
-from .abstract import ExportableMixin, WordpressModel
+from .abstract import ExportableMixin, StreamFieldMixin, WordpressModel
 
 
-class WPPage(WordpressModel, ExportableMixin):
+class WPPage(WordpressModel, ExportableMixin, StreamFieldMixin):
     """Model definition for Page."""
 
     SOURCE_URL = "/wp-json/wp/v2/pages"
     WAGTAIL_PAGE_MODEL = "home.StandardPage"
     WAGTAIL_PAGE_MODEL_PARENT = "home.HomePage"
-    WAGTAIL_PAGE_MODEL_STEAM_FIELDS = [
-        # "body",
-    ]
+
     FIELD_MAPPING = {
         "title": "title",
         "content": "body",
         "excerpt": "intro",
+    }
+
+    STREAMFIELD_MAPPING = {
+        "content": "body",
     }
 
     title = models.CharField(max_length=255)

@@ -1,0 +1,50 @@
+[
+  {
+    "type": "paragraph",
+    "value": "<p>This site is using the standard WordPress Theme Unit Test Data for content. The Theme Unit Test is a series of posts and pages that match up with a checklist on the WordPress codex. You can use the data and checklist together to test your theme. It is recommended that you test your theme with the Theme Unit Test before submitting your theme to the WordPress.org theme directory.</p>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<h2>WordPress Theme Development Resources</h2>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<ol>\n<li>See <a href=\"https://developer.wordpress.org/themes/\">the WordPress Theme Developer Handbook</a> for examples of best practices.</li>\n<li>See <a href=\"https://developer.wordpress.org/reference/\">the WordPress Code Reference</a> for more information about WordPress’ functions, classes, methods, and hooks.</li>\n<li>See <a href=\"https://codex.wordpress.org/Theme_Unit_Test\">Theme Unit Test</a> for a robust test suite for your Theme and get the latest version of the test data you see here.</li>\n<li>See <a href=\"https://developer.wordpress.org/themes/release/\">Releasing Your Theme</a> for a guide to submitting your Theme to the <a href=\"https://wordpress.org/themes/\">Theme Directory</a>.</li>\n</ol>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<li>See <a href=\"https://developer.wordpress.org/themes/\">the WordPress Theme Developer Handbook</a> for examples of best practices.</li>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<a href=\"https://developer.wordpress.org/themes/\">the WordPress Theme Developer Handbook</a>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<li>See <a href=\"https://developer.wordpress.org/reference/\">the WordPress Code Reference</a> for more information about WordPress’ functions, classes, methods, and hooks.</li>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<a href=\"https://developer.wordpress.org/reference/\">the WordPress Code Reference</a>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<li>See <a href=\"https://codex.wordpress.org/Theme_Unit_Test\">Theme Unit Test</a> for a robust test suite for your Theme and get the latest version of the test data you see here.</li>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<a href=\"https://codex.wordpress.org/Theme_Unit_Test\">Theme Unit Test</a>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<li>See <a href=\"https://developer.wordpress.org/themes/release/\">Releasing Your Theme</a> for a guide to submitting your Theme to the <a href=\"https://wordpress.org/themes/\">Theme Directory</a>.</li>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<a href=\"https://developer.wordpress.org/themes/release/\">Releasing Your Theme</a>"
+  },
+  {
+    "type": "paragraph",
+    "value": "<a href=\"https://wordpress.org/themes/\">Theme Directory</a>"
+  }
+]
