@@ -403,8 +403,8 @@ class BaseAdmin(admin.ModelAdmin):
         # Now the page heirarchy is set, we can dwela with updating the streamfield anchor links.
         # Above we need to cache the page objects created so we can loop through them and update the anchor links
         for obj in cached_objects:
-            anchoriser = Anchoriser(obj)
-            anchoriser.anchorise()
+            anchoriser = Anchoriser(obj)  # noqa
+            # anchoriser.anchorise()
 
     def update_wagtail_page(self, admin, request, queryset):
         """
