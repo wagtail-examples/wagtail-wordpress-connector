@@ -31,3 +31,4 @@ wt = "commands.cli:wt"
 dj = "commands.cli:dj"
 
 i = "commands.inspector:i"
+a = "commands.anchor_links:a"
