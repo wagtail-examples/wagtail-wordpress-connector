@@ -30,7 +30,26 @@ class BlockQuoteBlock(blocks.StructBlock):
         template = "home/blocks/blockquote_block.html"
 
 
+class DefinitionListBlock(blocks.StructBlock):
+    list = blocks.ListBlock(
+        blocks.StructBlock(
+            [
+                ("term", blocks.CharBlock(required=True, help_text="Term to define")),
+                (
+                    "definition",
+                    blocks.TextBlock(required=True, help_text="Definition of term"),
+                ),
+            ]
+        )
+    )
+
+    class Meta:
+        icon = "list-ul"
+        template = "home/blocks/definition_list_block.html"
+
+
 class StreamBlocks(blocks.StreamBlock):
     paragraph = blocks.RichTextBlock()
     heading = HeadingBlock()
     blockquote = BlockQuoteBlock()
+    definition_list = DefinitionListBlock()

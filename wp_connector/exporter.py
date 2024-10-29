@@ -121,6 +121,7 @@ class Exporter:
             if self.stream_field_mapping and wp_field in self.stream_field_mapping:
                 stream_field = self.stream_field_mapping[wp_field]
                 streamdata = StreamFieldable(
+                    obj=self.obj,  # for error messages
                     content=getattr(
                         self.obj,
                         wp_field,
@@ -203,6 +204,7 @@ class Exporter:
             if self.stream_field_mapping and wp_field in self.stream_field_mapping:
                 stream_field = self.stream_field_mapping[wp_field]
                 streamdata = StreamFieldable(
+                    obj=self.obj,  # for error messages
                     content=getattr(
                         self.obj,
                         wp_field,
