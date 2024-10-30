@@ -23,6 +23,7 @@ class FieldProcessor:
         self.wordpress_instance = wordpress_model.objects.get(id=self.obj.id)
 
         wagtail_model = apps.get_model(self.wordpress_instance.WAGTAIL_PAGE_MODEL)
+
         try:
             self.wagtail_instance = wagtail_model.objects.get(
                 id=self.wordpress_instance.wagtail_page_id
@@ -33,7 +34,6 @@ class FieldProcessor:
 
     def get_internal_fields_type(self, instance):
         # cache the richtext fields and stream fields of the model
-        # print(instance)
         for f in instance._meta.get_fields():
             if (
                 f.name in self.wordpress_instance.FIELD_MAPPING.values()
@@ -52,26 +52,51 @@ class FieldProcessor:
         def get_soup(field_value):
             return bs(field_value, "html.parser")
 
+        print("processing fields for ", self.obj)
         for richtext_field in self.richtext_fields:
             field_value = self.wagtail_instance.__dict__[richtext_field]
-            anchors = get_soup(field_value).find_all("a")
+            if not field_value:
+                continue
+            soup = get_soup(field_value)
+            anchors = soup.find_all("a")
             for a in anchors:
                 if self.anchor_type(a) == "internal":
                     anchor_path = self.anchor_path(a)
-                    self.update_anchor(anchor_path, field_value)
+                    richtext_anchor = self.get_richtext_anchor(anchor_path, a.text)
+                    soup.find("a", href=a["href"]).replaceWith(richtext_anchor)
+                    field_value = str(soup)
+            self.wagtail_instance.__dict__[richtext_field] = field_value
 
         for stream_field in self.stream_fields:
             stream_blocks = self.wagtail_instance.__dict__[stream_field].__dict__
             raw_data = stream_blocks["_raw_data"]
+            if not raw_data:
+                continue
             for data in raw_data:
                 if data["type"] == "paragraph":
-                    anchors = get_soup(data["value"]).find_all("a")
+                    soup = get_soup(data["value"])
+                    anchors = soup.find_all("a")
                     for a in anchors:
                         if self.anchor_type(a) == "internal":
                             anchor_path = self.anchor_path(a)
-                            self.update_anchor(anchor_path, data["value"])
+                            richtext_anchor = self.get_richtext_anchor(
+                                anchor_path, a.text
+                            )
+                            soup.find("a", href=a["href"]).replaceWith(richtext_anchor)
+                            data["value"] = str(soup)
+            self.wagtail_instance.__dict__[stream_field].__dict__[
+                "_raw_data"
+            ] = raw_data
 
-    def update_anchor(self, anchor_path, data):
+        if hasattr(self, "wagtail_instance"):
+            revision = self.wagtail_instance.save_revision()
+            revision.publish()
+        else:
+            print(
+                f"Wagtail page not created. {self.wordpress_instance.wagtail_page_id}"
+            )
+
+    def get_richtext_anchor(self, anchor_path, anchor):
         # Find the wordpress model with the slug value
         # and update the anchor href attribute with the wagtail page
         # if it exists
@@ -82,22 +107,35 @@ class FieldProcessor:
         wordpress_collection.update_collection_attrs(["id", "wp_id", "wagtail_page_id"])
         wordpress_collection.create_collection()
         list = wordpress_collection.list
-        # print(list)
-        print(anchor_path)
         result = list.get(anchor_path)
-        print(result)
+
+        if result and result.get("wagtail_page_id"):
+            soup = bs("", "html.parser")
+            newlink = soup.new_tag("a")
+            newlink["linktype"] = "page"
+            newlink["id"] = result["wagtail_page_id"]
+            newlink.string = anchor
+            return newlink
+        else:
+            print(f"No wagtail page found for {anchor_path}")
+            return anchor
 
     def anchor_path(self, anchor):
         return urlparse(anchor["href"]).path.strip("/")
 
     def anchor_type(self, anchor):
-        try:
-            domain = urlparse(anchor["href"]).netloc
-            if "localhost" in domain:
-                return "internal"
-            return "external"
-        except KeyError:
-            print(f"No href attribute found in anchor tag {anchor, self.obj}")
+        if not anchor.get("href"):
+            # ignore empty links
+            return
+        if anchor.get("href").startswith("http://") or anchor.get("href").startswith(
+            "https://"
+        ):
+
+            if "." in anchor.get("href"):
+                # ignore already absolute links and have a dotted domain
+                return "external"
+
+        return "internal"
 
 
 @dataclass
