@@ -12,7 +12,7 @@ ALLOWED_HOSTS = ["*"]
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Remove if not required
-INSTALLED_APPS += ["style_guide"]  # noqa F405
+INSTALLED_APPS += ["style_guide", "django_extensions"]  # noqa F405
 
 # To stop the redirects from being created when a page is moved
 # Use the redirects action in the import action to create the redirects
@@ -22,6 +22,16 @@ WAGTAILREDIRECTS_AUTO_CREATE = False
 
 # Cooment out if you need to use timezone aware datetimes
 USE_TZ = False
+
+# Shell plus config
+SHELL_PLUS_IMPORTS = [
+    "from wp_connector.client import *",
+    "from wp_connector.exporter import *",
+    "from wp_connector.field_panels import *",
+    "from wp_connector.importer import *",
+    "from wp_connector.richtext_field_processor import *",
+    "from wp_connector.streamfieldable import *",
+]
 
 try:
     from .local import *  # noqa F403

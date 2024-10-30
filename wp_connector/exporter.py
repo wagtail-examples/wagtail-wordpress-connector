@@ -52,7 +52,6 @@ class Exporter:
 
     # Configurations
     wagtail_page_model: object = None
-    wagtail_page_model_required_fields: list = None
     wagtail_page_model_has_author: bool = False
     wagtail_page_model_has_tags: bool = False
     field_mapping: dict = None
