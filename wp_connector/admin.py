@@ -50,6 +50,8 @@ class BaseAdmin(admin.ModelAdmin):
         # add any other field you need to protect from editing
     ]
 
+    list_per_page = 25
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -335,6 +337,24 @@ class BaseAdmin(admin.ModelAdmin):
     def handle_message_user(self, request, message, level):
         self.message_user(request, message, level=level)
 
+    def move_page_to_parent(self, object):
+        """
+        Move a wagtail page to a new parent page
+
+        Args:
+            page (Page): The page to move
+            parent (Page): The new parent page
+        """
+        # get the wagtail parent page instance
+        # indicated by the wordpress parent's wagtail_page_id
+        parent_page = Page.objects.get(id=object.parent.wagtail_page_id)
+
+        # get the page which is about to be moved
+        page = Page.objects.get(id=object.wagtail_page_id)
+
+        # move the page
+        page.move(parent_page, pos="last-child")
+
     def create_wagtail_page(self, admin, request, queryset):
         """
         Loop through the selected wordpress objects and create a wagtail page
@@ -346,7 +366,7 @@ class BaseAdmin(admin.ModelAdmin):
         # If it contains a mix of both types, raise an error
 
         # Get the type for the first object in the queryset
-        first_object_type = queryset[0].type
+        # first_object_type = queryset[0].type
 
         # Check all objects in the queryset are of the same type
         if not self.validate_queryset_type(queryset):
@@ -381,35 +401,34 @@ class BaseAdmin(admin.ModelAdmin):
                 if exporter.post_init_messages.get("skip", False):
                     continue
 
-            # cached objects used in later processing e.g. richtext fields
-            # cached_objects.add(obj)
-
             result = exporter.do_create_wagtail_page()
             self.handle_message_user(request, result["message"], level=result["level"])
 
-        if first_object_type == "page":
-            # The wagtail page heirarchy is not set when creating page types in initial import
-            # becuase the parent page may not have been created yet
-            # So update the parent page for all the created pages using the move_page method
+        # if first_object_type == "page":
+        # The wagtail page heirarchy is not set when creating page types in initial import
+        # becuase the parent page may not have been created yet
+        # So update the parent page for all the created pages using the move_page method
 
-            # refresh the queryset to pick up the wagtial_page_id's
-            queryset = self.model.objects.filter(
-                id__in=queryset.values_list("id", flat=True)
-            )
+        # refresh the queryset to pick up the wagtial_page_id's
+        queryset = self.model.objects.filter(
+            id__in=queryset.values_list("id", flat=True)
+        )
 
-            for obj in queryset:
-                # operate on records that have a parent indictaed in the wordpress data
-                # parent field, it's a foreign key to the same model
-                if obj.parent:
-                    # get the wagtail parent page instance
-                    # indicated by the wordpress parent's wagtail_page_id
-                    parent_page = Page.objects.get(id=obj.parent.wagtail_page_id)
+        for obj in queryset:
+            # operate on records that have a parent indictaed in the wordpress data
+            # parent field, it's a foreign key to the same model
+            if hasattr(obj, "parent") and obj.parent:
+                self.move_page_to_parent(obj)
+            # if obj.parent:
+            #     # get the wagtail parent page instance
+            #     # indicated by the wordpress parent's wagtail_page_id
+            #     parent_page = Page.objects.get(id=obj.parent.wagtail_page_id)
 
-                    # get the page which is about to be moved
-                    page = Page.objects.get(id=obj.wagtail_page_id)
+            #     # get the page which is about to be moved
+            #     page = Page.objects.get(id=obj.wagtail_page_id)
 
-                    # move the page
-                    page.move(parent_page, pos="last-child")
+            #     # move the page
+            #     page.move(parent_page, pos="last-child")
 
         # Now the page heirarchy is set, we can deal with updating the richtext anchor links.
         # for obj in cached_objects:
@@ -427,7 +446,7 @@ class BaseAdmin(admin.ModelAdmin):
         # If it contains a mix of both types, raise an error
 
         # Get the type for the first object in the queryset
-        first_object_type = queryset[0].type
+        # first_object_type = queryset[0].type
 
         # Check all objects in the queryset are of the same type
         if not self.validate_queryset_type(queryset):
@@ -465,7 +484,7 @@ class BaseAdmin(admin.ModelAdmin):
             result = exporter.do_update_wagtail_page()
             self.handle_message_user(request, result["message"], level=result["level"])
 
-        if first_object_type == "page":
+            # if first_object_type == "page":
             # The page heirarchy is not alterred when updaing 'page' types
             # So we need to update the parent page for all the created pages using the move_page method
 
@@ -477,33 +496,53 @@ class BaseAdmin(admin.ModelAdmin):
             for obj in queryset:
                 # operate on records that have a parent indictaed in the wordpress data
                 # parent field, it's a foreign key to the same model
-                if obj.parent:
-                    # get the wagtail parent page instance
-                    # indicated by the wordpress parent's wagtail_page_id
-                    parent_page = Page.objects.get(id=obj.parent.wagtail_page_id)
+                if hasattr(obj, "parent"):
+                    if obj.parent:
+                        self.move_page_to_parent(obj)
+                    else:
+                        # the page my no longer have a parent page
+                        # so move it to the page inticated by the WAGTAIL_PAGE_MODEL_PARENT
 
-                    # get the page which is about to be moved
-                    page = Page.objects.get(id=obj.wagtail_page_id)
+                        # get the page
+                        page = Page.objects.get(id=obj.wagtail_page_id)
 
-                    # move the page
-                    page.move(parent_page, pos="last-child")
-                else:
-                    # the page my no longer have a parent page
-                    # so move it to the page inticated by the WAGTAIL_PAGE_MODEL_PARENT
+                        # move the page to the obj WAGTAIL_PAGE_MODEL_PARENT
+                        parent_page_model = apps.get_model(
+                            obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[0],
+                            obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[1],
+                        )
+                        # get the first parent page
+                        parent_page = parent_page_model.objects.first()
 
-                    # get the page
-                    page = Page.objects.get(id=obj.wagtail_page_id)
+                        # move the page
+                        page.move(parent_page, pos="last-child")
+                # if obj.parent:
+                #     # get the wagtail parent page instance
+                #     # indicated by the wordpress parent's wagtail_page_id
+                #     parent_page = Page.objects.get(id=obj.parent.wagtail_page_id)
 
-                    # move the page to the obj WAGTAIL_PAGE_MODEL_PARENT
-                    parent_page_model = apps.get_model(
-                        obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[0],
-                        obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[1],
-                    )
-                    # get the first parent page
-                    parent_page = parent_page_model.objects.first()
+                #     # get the page which is about to be moved
+                #     page = Page.objects.get(id=obj.wagtail_page_id)
 
-                    # move the page
-                    page.move(parent_page, pos="last-child")
+                #     # move the page
+                #     page.move(parent_page, pos="last-child")
+                # else:
+                #     # the page my no longer have a parent page
+                #     # so move it to the page inticated by the WAGTAIL_PAGE_MODEL_PARENT
+
+                #     # get the page
+                #     page = Page.objects.get(id=obj.wagtail_page_id)
+
+                #     # move the page to the obj WAGTAIL_PAGE_MODEL_PARENT
+                #     parent_page_model = apps.get_model(
+                #         obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[0],
+                #         obj.WAGTAIL_PAGE_MODEL_PARENT.split(".")[1],
+                #     )
+                #     # get the first parent page
+                #     parent_page = parent_page_model.objects.first()
+
+                #     # move the page
+                #     page.move(parent_page, pos="last-child")
 
     def delete_wagtail_page_id(self, admin, request, queryset):
         """
