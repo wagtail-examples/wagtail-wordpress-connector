@@ -321,6 +321,9 @@ class BaseAdmin(admin.ModelAdmin):
             link = f'<a href="{link}">[{obj.wagtail_page_id}]</a>'
             return mark_safe(link)
 
+    def handle_message_user(self, request, message, level):
+        self.message_user(request, message, level=level)
+
     def create_wagtail_page(self, admin, request, queryset):
         """
         Loop through the selected wordpress objects and create a wagtail page
@@ -336,7 +339,7 @@ class BaseAdmin(admin.ModelAdmin):
 
         # Check all objects in the queryset are of the same type
         if not all(obj.type == first_object_type for obj in queryset):
-            self.message_user(
+            self.handle_message_user(
                 request,
                 "All the selected objects must be of the same type",
                 level="ERROR",
@@ -347,7 +350,7 @@ class BaseAdmin(admin.ModelAdmin):
             # skip objects that already have a wagtail_page_id
             # the action to perform on the is to update the page
             if obj.wagtail_page_id:
-                self.message_user(
+                self.handle_message_user(
                     request,
                     f"Page already exists for {obj.title}. Use the 'Update Existing Wagtail Pages' action",
                     level="WARNING",
@@ -359,7 +362,7 @@ class BaseAdmin(admin.ModelAdmin):
             if hasattr(exporter, "post_init_messages"):
                 # return the first message as the error message
                 # if there are more errors we don't need to show them yet
-                self.message_user(
+                self.handle_message_user(
                     request,
                     exporter.post_init_messages["message"],
                     level=exporter.post_init_messages["level"],
@@ -371,7 +374,7 @@ class BaseAdmin(admin.ModelAdmin):
             # cached_objects.add(obj)
 
             result = exporter.do_create_wagtail_page()
-            self.message_user(request, result["message"], level=result["level"])
+            self.handle_message_user(request, result["message"], level=result["level"])
 
         if first_object_type == "page":
             # The wagtail page heirarchy is not set when creating page types in initial import
@@ -417,7 +420,7 @@ class BaseAdmin(admin.ModelAdmin):
 
         # Check all objects in the queryset are of the same type
         if not all(obj.type == first_object_type for obj in queryset):
-            self.message_user(
+            self.handle_message_user(
                 request,
                 "All the selected objects must be of the same type",
                 level="ERROR",
@@ -428,7 +431,7 @@ class BaseAdmin(admin.ModelAdmin):
             # skip objects that do not have a wagtail_page_id
             # the action to perform on the is to create the page
             if not obj.wagtail_page_id:
-                self.message_user(
+                self.handle_message_user(
                     request,
                     f"Page doen't exist for {obj.title} yet. Use the 'Create New Wagtail Pages' action",
                     level="WARNING",
@@ -440,7 +443,7 @@ class BaseAdmin(admin.ModelAdmin):
             if hasattr(exporter, "post_init_messages"):
                 # return the first message as the error message
                 # if there are more errors we don't need to show them yet
-                self.message_user(
+                self.handle_message_user(
                     request,
                     exporter.post_init_messages["message"],
                     level=exporter.post_init_messages["level"],
@@ -449,7 +452,7 @@ class BaseAdmin(admin.ModelAdmin):
                     continue
 
             result = exporter.do_update_wagtail_page()
-            self.message_user(request, result["message"], level=result["level"])
+            self.handle_message_user(request, result["message"], level=result["level"])
 
         if first_object_type == "page":
             # The page heirarchy is not alterred when updaing 'page' types
@@ -508,18 +511,18 @@ class BaseAdmin(admin.ModelAdmin):
 
             if page:
                 if page.get_children():
-                    self.message_user(
+                    self.handle_message_user(
                         request,
-                        f"Page {obj.title} had children, they have also been deleted",
+                        f"Page {obj.title} has children, they will also be deleted",
                         level="WARNING",
                     )
                 else:
-                    self.message_user(
-                        request, f"Page {obj.title} has been deleted", level="WARNING"
+                    self.handle_message_user(
+                        request, f"Page {obj.title} has no children", level="WARNING"
                     )
                 page.delete()
             else:
-                self.message_user(
+                self.handle_message_user(
                     request, f"Page {obj.title} not found", level="WARNING"
                 )
 
@@ -527,7 +530,7 @@ class BaseAdmin(admin.ModelAdmin):
             obj.wagtail_page_id = None
             obj.save()
 
-        self.message_user(request, "Wagtail Page ID's Cleared")
+        self.handle_message_user(request, "Wagtail Page ID's Cleared")
 
     def create_wagtail_redirects(self, admin, request, queryset):
         """
@@ -571,7 +574,7 @@ class BaseAdmin(admin.ModelAdmin):
         """
         for obj in queryset:
             obj.delete()
-            self.message_user(
+            self.handle_message_user(
                 request,
                 f"Selected object '{obj}' has been deleted, Wagtail pages have not been deleted.",
             )
