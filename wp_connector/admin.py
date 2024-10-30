@@ -321,6 +321,17 @@ class BaseAdmin(admin.ModelAdmin):
             link = f'<a href="{link}">[{obj.wagtail_page_id}]</a>'
             return mark_safe(link)
 
+    def validate_queryset_type(self, queryset):
+        """
+        Check that all the objects in the queryset are of the same type
+        Args:
+            queryset (QuerySet): The queryset to check
+        Returns:
+            str: The type of the objects in the queryset
+        """
+        types = set(obj.type for obj in queryset)
+        return len(types) == 1
+
     def handle_message_user(self, request, message, level):
         self.message_user(request, message, level=level)
 
@@ -338,7 +349,7 @@ class BaseAdmin(admin.ModelAdmin):
         first_object_type = queryset[0].type
 
         # Check all objects in the queryset are of the same type
-        if not all(obj.type == first_object_type for obj in queryset):
+        if not self.validate_queryset_type(queryset):
             self.handle_message_user(
                 request,
                 "All the selected objects must be of the same type",
@@ -419,7 +430,7 @@ class BaseAdmin(admin.ModelAdmin):
         first_object_type = queryset[0].type
 
         # Check all objects in the queryset are of the same type
-        if not all(obj.type == first_object_type for obj in queryset):
+        if not self.validate_queryset_type(queryset):
             self.handle_message_user(
                 request,
                 "All the selected objects must be of the same type",
@@ -530,7 +541,7 @@ class BaseAdmin(admin.ModelAdmin):
             obj.wagtail_page_id = None
             obj.save()
 
-        self.handle_message_user(request, "Wagtail Page ID's Cleared")
+        self.handle_message_user(request, "Wagtail Page ID's Cleared", level="SUCCESS")
 
     def create_wagtail_redirects(self, admin, request, queryset):
         """
@@ -555,6 +566,7 @@ class BaseAdmin(admin.ModelAdmin):
                         redirect_page_route_path=wagtail_page.url_path,
                         is_permanent=True,
                     )
+        self.handle_message_user(request, "Redirects Created", level="SUCCESS")
 
         return True
 
@@ -577,6 +589,7 @@ class BaseAdmin(admin.ModelAdmin):
             self.handle_message_user(
                 request,
                 f"Selected object '{obj}' has been deleted, Wagtail pages have not been deleted.",
+                level="WARNING",
             )
 
     def get_actions(self, request):
