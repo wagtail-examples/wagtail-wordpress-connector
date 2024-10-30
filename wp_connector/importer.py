@@ -1,6 +1,8 @@
 import sys
+from urllib.parse import urlparse
 
 import jmespath
+from bs4 import BeautifulSoup as bs
 from django.apps import apps
 
 from wp_connector.client import Client
@@ -9,10 +11,10 @@ from wp_connector.client import Client
 class Importer:
     def __init__(self, url, model_name):
         self.client = Client(url)
+        self.netloc = urlparse(url).netloc
         self.model = apps.get_model("wp_connector", model_name)
         self.fk_objects = []
         self.mtm_objects = []
-        self.cleaned_objects = []
         self.import_fields = self.model.include_fields_initial_import(self.model)
 
     def import_data(self):
@@ -53,6 +55,8 @@ class Importer:
                 obj, created = self.model.objects.update_or_create(
                     wp_id=item["wp_id"], defaults=data
                 )
+
+                self.make_absolute_links(obj)
 
                 sys.stdout.write(f"Created {obj}\n" if created else f"Updated {obj}\n")
 
@@ -157,6 +161,48 @@ class Importer:
                     )
 
         return foreign_key_data
+
+    def make_absolute_links(self, obj):
+        """
+        Make all relative links absolute.
+        This isn't neccessarily required as long as you now all internal links are absolute.
+        I've found that on occassions they are not.
+
+        Args:
+            obj (object): The object to process
+
+        Returns:
+            None
+
+        """
+        if hasattr(obj, "FIELD_MAPPING"):
+            for field in obj.FIELD_MAPPING.keys():
+                soup = bs(getattr(obj, field), "html.parser")
+                for link in soup.find_all("a"):
+                    if not link.get("href"):
+                        # ignore empty links
+                        continue
+                    if link.get("href").startswith("http://") or link.get(
+                        "href"
+                    ).startswith("https://"):
+                        if self.netloc in link.get("href") or "." in link.get("href"):
+                            # ignore already absolute links and have a dotted domain
+                            continue
+
+                    href = link.get("href")
+                    # replace http://
+                    if href.startswith("http://"):
+                        href = href.replace("http://", "")
+                    # replace https://
+                    if href.startswith("https://"):
+                        href = href.replace("https://", "")
+                    # prepend the netloc
+                    link["href"] = f"http://{self.netloc}/{href.strip("/")}"
+                    print(f"Links made absolute {obj} {field} - {link['href']}")
+
+                setattr(obj, field, str(soup))
+        else:
+            print(f"AttributeError: {obj}, it has no FIELD_MAPPING")
 
     # @staticmethod
     # def process_clean_fields(
