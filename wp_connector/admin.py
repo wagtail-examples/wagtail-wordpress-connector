@@ -343,10 +343,6 @@ class BaseAdmin(admin.ModelAdmin):
             )
             return
 
-        cached_objects = (  # noqa: F841
-            set()
-        )  # use these for upadtes needed after the pages are created
-
         for obj in queryset:
             # skip objects that already have a wagtail_page_id
             # the action to perform on the is to update the page
