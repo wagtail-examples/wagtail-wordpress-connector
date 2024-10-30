@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup as bs
 from django.apps import apps
+from wagtail.models import Page
 
 
 @dataclass
@@ -22,13 +23,17 @@ class FieldProcessor:
         self.wordpress_instance = wordpress_model.objects.get(id=self.obj.id)
 
         wagtail_model = apps.get_model(self.wordpress_instance.WAGTAIL_PAGE_MODEL)
-        self.wagtail_instance = wagtail_model.objects.get(
-            id=self.wordpress_instance.wagtail_page_id
-        ).specific
-        self.get_internal_fields_type(self.wagtail_instance)
+        try:
+            self.wagtail_instance = wagtail_model.objects.get(
+                id=self.wordpress_instance.wagtail_page_id
+            )
+            self.get_internal_fields_type(self.wagtail_instance)
+        except Page.DoesNotExist:
+            print(f"No Wagtail page found for {self.obj}")
 
     def get_internal_fields_type(self, instance):
         # cache the richtext fields and stream fields of the model
+        # print(instance)
         for f in instance._meta.get_fields():
             if (
                 f.name in self.wordpress_instance.FIELD_MAPPING.values()
@@ -52,7 +57,8 @@ class FieldProcessor:
             anchors = get_soup(field_value).find_all("a")
             for a in anchors:
                 if self.anchor_type(a) == "internal":
-                    self.query_anchor(a)
+                    anchor_path = self.anchor_path(a)
+                    self.update_anchor(anchor_path, field_value)
 
         for stream_field in self.stream_fields:
             stream_blocks = self.wagtail_instance.__dict__[stream_field].__dict__
@@ -62,12 +68,27 @@ class FieldProcessor:
                     anchors = get_soup(data["value"]).find_all("a")
                     for a in anchors:
                         if self.anchor_type(a) == "internal":
-                            self.query_anchor(a)
+                            anchor_path = self.anchor_path(a)
+                            self.update_anchor(anchor_path, data["value"])
 
-    def query_anchor(self, anchor):
-        slug = urlparse(anchor["href"]).path
-        print(anchor)
-        print(slug)
+    def update_anchor(self, anchor_path, data):
+        # Find the wordpress model with the slug value
+        # and update the anchor href attribute with the wagtail page
+        # if it exists
+
+        wordpress_collection = WordpressModelCollectionUtils(
+            models=["WpPost", "WpPage"]
+        )
+        wordpress_collection.update_collection_attrs(["id", "wp_id", "wagtail_page_id"])
+        wordpress_collection.create_collection()
+        list = wordpress_collection.list
+        # print(list)
+        print(anchor_path)
+        result = list.get(anchor_path)
+        print(result)
+
+    def anchor_path(self, anchor):
+        return urlparse(anchor["href"]).path.strip("/")
 
     def anchor_type(self, anchor):
         try:
@@ -188,6 +209,9 @@ class WordpressModelCollectionUtils:
 
         if macro == "reset":
             self.collection_attrs = ["id", "wp_id"]
+
+    def update_collection_attrs(self, attrs):
+        self.collection_attrs = attrs
 
     def set_collection_key(self, key):
         self.collection_key = key

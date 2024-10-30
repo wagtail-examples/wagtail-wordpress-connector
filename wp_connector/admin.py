@@ -343,7 +343,7 @@ class BaseAdmin(admin.ModelAdmin):
             )
             return
 
-        cached_objects = (
+        cached_objects = (  # noqa: F841
             set()
         )  # use these for upadtes needed after the pages are created
 
@@ -372,7 +372,7 @@ class BaseAdmin(admin.ModelAdmin):
                     continue
 
             # cached objects used in later processing e.g. richtext fields
-            cached_objects.add(obj)
+            # cached_objects.add(obj)
 
             result = exporter.do_create_wagtail_page()
             self.message_user(request, result["message"], level=result["level"])
@@ -402,9 +402,9 @@ class BaseAdmin(admin.ModelAdmin):
                     page.move(parent_page, pos="last-child")
 
         # Now the page heirarchy is set, we can deal with updating the richtext anchor links.
-        for obj in cached_objects:
-            richtext_processor = FieldProcessor(obj)
-            richtext_processor.process_fields()
+        # for obj in cached_objects:
+        #     richtext_processor = FieldProcessor(obj)
+        #     richtext_processor.process_fields()
 
     def update_wagtail_page(self, admin, request, queryset):
         """
@@ -559,6 +559,14 @@ class BaseAdmin(admin.ModelAdmin):
 
         return True
 
+    def update_anchor_links(self, admin, request, queryset):
+        """
+        Update the anchor links in the richtext fields and/or streamfields of the selected wordpress objects
+        """
+        for obj in queryset:
+            richtext_processor = FieldProcessor(obj)
+            richtext_processor.process_fields()
+
     def delete_selected(self, admin, request, queryset):
         """
         Delete the selected wordpress objects
@@ -581,17 +589,22 @@ class BaseAdmin(admin.ModelAdmin):
             actions["create_wagtail_page"] = (
                 self.create_wagtail_page,
                 "create_wagtail_page",
-                "Create New Wagtail Pages from selected",
-            )
-            actions["update_wagtail_page"] = (
-                self.update_wagtail_page,
-                "update_wagtail_page",
-                "Update Existing Wagtail Pages from selected",
+                "1. Create New Wagtail Pages from selected",
             )
             actions["create_wagtail_redirects"] = (
                 self.create_wagtail_redirects,
                 "create_wagtail_redirects",
-                "Create Wagtail Redirects from selected",
+                "2. Create Wagtail Redirects from selected",
+            )
+            actions["update_anchor_links"] = (
+                self.update_anchor_links,
+                "update_anchor_links",
+                "Update Anchor Links in content fields",
+            )
+            actions["update_wagtail_page"] = (
+                self.update_wagtail_page,
+                "update_wagtail_page",
+                "Update Existing Wagtail Pages",
             )
             actions["delete_wagtail_page_id"] = (
                 self.delete_wagtail_page_id,
