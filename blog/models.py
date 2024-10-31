@@ -13,7 +13,6 @@ from wagtail.admin.panels import (
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
-from wagtail.snippets.models import register_snippet
 
 from home.blocks import StreamBlocks
 from wp_connector.field_panels import WordpressInfoPanel
@@ -35,7 +34,6 @@ class BlogCategory(models.Model):
         verbose_name_plural = "Categories"
 
 
-@register_snippet
 class Author(models.Model):
     name = models.CharField(max_length=255)
     author_image = models.ForeignKey(
