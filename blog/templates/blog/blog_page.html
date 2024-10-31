@@ -38,15 +38,27 @@
                     </small>
                 {% endif %}
             {% endwith %}
+
+            {% if tags %}
             <hr>
-            {% with tags=page.tags.all %}
-                {% if tags %}
-                    <small>Tags:</small>
-                    {% for tag in tags %}
-                        <a href="{% slugurl 'tags' %}?tag={{ tag }}">{{ tag }}</a>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+            {% if not tags_show %}
+                <small class="pico-color-red-500">A page to view tags in not yet created.</small> <br>
+                <small>Create a page with title Tags from the Blog tag index page type</small>
+            {% else %}
+                <small>Tags:</small>
+                {% for tag in tags %}
+                    <a href="{{ tags_show.url }}?tag={{ tag }}">{{ tag }}</a>
+                {% endfor %}
+            {% endif %}
+            {% endif %}
+
+            {% if categories %}
+            <hr>
+            <small>Categories:</small>
+            {% for category in categories %}
+                <a href="{{ categories_show.url }}?category={{ category.category.slug }}">{{ category }}</a>
+            {% endfor %}
+            {% endif %}
         </article>
 
     </div>

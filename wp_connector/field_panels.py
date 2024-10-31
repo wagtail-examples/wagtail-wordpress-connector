@@ -37,7 +37,14 @@ class WordpressInfoPanel(HelpPanel):
             wp_model = apps.get_model(
                 self.content.split(".")[0], self.content.split(".")[1]
             )
+
             instance = wp_model.objects.filter(wagtail_page_id=self.instance.pk).first()
+
+            if not instance:
+                self.instance_url = None
+                self.instance_title = None
+                return
+
             # import-admin/wp_connector/wppage/?q=[wagtail_page_id]
             instance_url = (
                 "/import-admin/wp_connector/"

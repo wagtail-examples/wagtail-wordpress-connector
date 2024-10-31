@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from django.apps import apps
 from taggit.models import Tag
 
-from blog.models import Author
+from blog.models import Author, BlogCategory, BlogPageCategory
 from wp_connector.streamfieldable import StreamFieldable
 
 # TODO: Better logging of messages
@@ -54,6 +54,7 @@ class Exporter:
     wagtail_page_model: object = None
     wagtail_page_model_has_author: bool = False
     wagtail_page_model_has_tags: bool = False
+    wagtail_page_model_has_categories: bool = False
     field_mapping: dict = None
 
     # this takes precedence over the field_mapping
@@ -94,6 +95,9 @@ class Exporter:
 
         if hasattr(self.obj, "tags"):
             self.wagtail_page_model_has_tags = True
+
+        if hasattr(self.obj, "categories"):
+            self.wagtail_page_model_has_categories = True
 
     def do_create_wagtail_page(self):
         # The wagtail parent page
@@ -169,6 +173,30 @@ class Exporter:
         parent_page.add_child(instance=created_wagtail_page)
         revision = created_wagtail_page.save_revision()
         revision.publish()
+
+        # Set the CATEGORIES if the page model has categories
+        # Do this after the page is published becuase the relation
+        # between Blog post and Category requires a page id
+        if self.wagtail_page_model_has_categories:
+            # some don't have categories
+            if obj_categories := self.obj.categories.all():
+                for obj_category in obj_categories:
+                    # is the category already available in the Category model?
+                    if category := BlogCategory.objects.filter(
+                        name=obj_category.name, slug=obj_category.slug
+                    ).first():
+                        BlogPageCategory.objects.create(
+                            page=created_wagtail_page,
+                            category=category,
+                        )
+                    else:
+                        category = BlogCategory.objects.create(
+                            name=obj_category.name, slug=obj_category.slug
+                        )
+                        BlogPageCategory.objects.create(
+                            page=created_wagtail_page,
+                            category=category,
+                        )
 
         # Save the wagtail page ID to the wordpress model
         # so it can be matched later if required
@@ -248,6 +276,32 @@ class Exporter:
                     else:
                         tag = Tag.objects.create(name=obj_tag.name)
                         updated_wagtail_page.tags.add(tag)
+
+        # Set the CATEGORIES if the page model has categories
+        # Do this after the page is published becuase the relation
+        # between Blog post and Category requires a page id
+        if self.wagtail_page_model_has_categories:
+            # some don't have categories
+            if obj_categories := self.obj.categories.all():
+                # remove all previous linked categories
+                BlogPageCategory.objects.filter(page=updated_wagtail_page).delete()
+                for obj_category in obj_categories:
+                    # is the category already available in the Category model?
+                    if category := BlogCategory.objects.filter(
+                        name=obj_category.name, slug=obj_category.slug
+                    ).first():
+                        BlogPageCategory.objects.create(
+                            page=updated_wagtail_page,
+                            category=category,
+                        )
+                    else:
+                        category = BlogCategory.objects.create(
+                            name=obj_category.name, slug=obj_category.slug
+                        )
+                        BlogPageCategory.objects.create(
+                            page=updated_wagtail_page,
+                            category=category,
+                        )
 
         # Update/Save the page
         revision = updated_wagtail_page.save_revision()

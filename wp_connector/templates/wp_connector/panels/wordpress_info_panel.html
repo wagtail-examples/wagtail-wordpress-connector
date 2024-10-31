@@ -1,6 +1,10 @@
 <fieldset>
+    {% if self.instance_url %}
     {% if self.heading %}
         <legend class="w-sr-only">{{ self.heading }}</legend>
     {% endif %}
     <div class="{{ self.classname }}">View the wordpress record this page is derived from: <a href="{{ self.instance_url }}">{{ self.instance_title }}</a></div>
+    {% else %}
+    <div class="{{ self.classname }}">This page is not derived from a wordpress record</div>
+    {% endif %}
 </fieldset>
