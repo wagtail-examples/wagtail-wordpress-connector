@@ -3,7 +3,13 @@ from django.db import models
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
+from wagtail.admin.panels import (
+    FieldPanel,
+    FieldRowPanel,
+    InlinePanel,
+    MultiFieldPanel,
+    TitleFieldPanel,
+)
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
@@ -11,6 +17,22 @@ from wagtail.snippets.models import register_snippet
 
 from home.blocks import StreamBlocks
 from wp_connector.field_panels import WordpressInfoPanel
+
+
+class BlogCategory(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    panels = [
+        TitleFieldPanel("name"),
+        FieldPanel("slug"),
+    ]
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Categories"
 
 
 @register_snippet
@@ -56,15 +78,19 @@ class BlogIndexPage(Page):
     content_panels = Page.content_panels + [FieldPanel("intro")]
 
     def get_context(self, request):
-        # Update context to include only published posts, ordered by reverse-chron
+        """
+        Update context to include only published blog pages, ordered by reverse-chron
+        take into account if the categories param is available to filter the reocrds
+        """
         context = super().get_context(request)
 
-        page = request.GET.get("page", 1)
+        qs = BlogPage.objects.live().public().order_by("-date")
+        categoy = request.GET.get("category")
+        if categoy:
+            qs = qs.filter(categories__category__slug=categoy)
 
-        paginator = Paginator(
-            self.get_children().live().order_by("-first_published_at"), 10
-        )
-
+        paginator = Paginator(qs, 10)
+        page = request.GET.get("page")
         try:
             blogpages = paginator.page(page)
         except PageNotAnInteger:
@@ -74,7 +100,7 @@ class BlogIndexPage(Page):
 
         context["blogpages"] = blogpages
         context["total_pages"] = paginator.num_pages
-
+        context["categories"] = BlogCategory.objects.all()
         return context
 
 
@@ -115,9 +141,35 @@ class BlogPage(Page):
                     ]
                 ),
                 FieldPanel("tags"),
+                InlinePanel("categories", label="Categories"),
             ],
             heading="Blog information",
         ),
         FieldPanel("intro"),
         FieldPanel("body"),
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["tags"] = self.tags.all()
+        context["tags_show"] = BlogTagIndexPage.objects.first()
+        context["categories"] = self.categories.all()
+        context["categories_show"] = BlogIndexPage.objects.first()
+        return context
+
+
+class BlogPageCategory(models.Model):
+    page = ParentalKey("BlogPage", related_name="categories", on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        "blog.BlogCategory", related_name="blog_pages", on_delete=models.CASCADE
+    )
+
+    panels = [
+        FieldPanel("category"),
+    ]
+
+    def __str__(self):
+        return self.category.name
+
+    class Meta:
+        verbose_name_plural = "Categories"
