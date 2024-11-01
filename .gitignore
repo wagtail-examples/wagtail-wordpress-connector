@@ -167,3 +167,4 @@ node_modules/
 /media
 wordpress.docker/wp-content
 wordpress.docker/xml
+/static

@@ -21,8 +21,10 @@ django-extensions = "^3.2.3"
 black = "24.10.0"
 isort = "5.13.2"
 flake8 = "7.1.1"
+coverage = "^7.6.4"
 
 
+responses = "^0.25.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
