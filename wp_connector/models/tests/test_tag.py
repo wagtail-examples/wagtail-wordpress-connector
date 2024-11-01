@@ -41,7 +41,6 @@ class TestTag(TestCase):
         # methods
         # inherited from abstract
         self.assertTrue(hasattr(WPTag, "get_title"))
-        self.assertTrue(hasattr(WPTag, "exclude_fields_initial_import"))
         self.assertTrue(hasattr(WPTag, "include_fields_initial_import"))
         self.assertTrue(hasattr(WPTag, "process_fields"))
         self.assertTrue(hasattr(WPTag, "process_foreign_keys"))

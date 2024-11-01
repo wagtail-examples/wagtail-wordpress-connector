@@ -53,7 +53,6 @@ class TestWPMedia(TestCase):
 
         # methods
         self.assertTrue(hasattr(WPMedia, "get_title"))
-        self.assertTrue(hasattr(WPMedia, "exclude_fields_initial_import"))
         self.assertTrue(hasattr(WPMedia, "include_fields_initial_import"))
         self.assertTrue(hasattr(WPMedia, "process_fields"))
         self.assertTrue(hasattr(WPMedia, "process_foreign_keys"))

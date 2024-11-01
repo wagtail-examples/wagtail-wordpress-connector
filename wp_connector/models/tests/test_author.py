@@ -39,7 +39,6 @@ class TestAuthor(TestCase):
         # methods
         self.assertTrue(hasattr(WPAuthor, "get_title"))
         # inherited from abstract
-        self.assertTrue(hasattr(WPAuthor, "exclude_fields_initial_import"))
         self.assertTrue(hasattr(WPAuthor, "include_fields_initial_import"))
         self.assertTrue(hasattr(WPAuthor, "process_fields"))
         self.assertTrue(hasattr(WPAuthor, "process_foreign_keys"))

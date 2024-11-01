@@ -45,7 +45,6 @@ class TestComment(TestCase):
         # methods
         self.assertTrue(hasattr(WPComment, "get_title"))
         # inherited from abstract
-        self.assertTrue(hasattr(WPComment, "exclude_fields_initial_import"))
         self.assertTrue(hasattr(WPComment, "include_fields_initial_import"))
         self.assertTrue(hasattr(WPComment, "process_fields"))
         self.assertTrue(hasattr(WPComment, "process_foreign_keys"))

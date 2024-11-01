@@ -40,7 +40,6 @@ class TestCategory(TestCase):
         # methods
         self.assertTrue(hasattr(WPCategory, "get_title"))
         # inherited from abstract
-        self.assertTrue(hasattr(WPCategory, "exclude_fields_initial_import"))
         self.assertTrue(hasattr(WPCategory, "include_fields_initial_import"))
         self.assertTrue(hasattr(WPCategory, "process_fields"))
         self.assertTrue(hasattr(WPCategory, "process_foreign_keys"))

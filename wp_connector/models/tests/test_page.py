@@ -55,7 +55,6 @@ class TestPage(TestCase):
         # methods
         # inherited from abstract
         self.assertTrue(hasattr(WPPage, "get_title"))
-        self.assertTrue(hasattr(WPPage, "exclude_fields_initial_import"))
         self.assertTrue(hasattr(WPPage, "include_fields_initial_import"))
         self.assertTrue(hasattr(WPPage, "process_fields"))
         self.assertTrue(hasattr(WPPage, "process_foreign_keys"))

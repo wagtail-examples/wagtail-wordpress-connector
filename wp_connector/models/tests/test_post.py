@@ -57,7 +57,6 @@ class TestPost(TestCase):
         # methods
         # inherited from abstract
         self.assertTrue(hasattr(WPPost, "get_title"))
-        self.assertTrue(hasattr(WPPost, "exclude_fields_initial_import"))
         self.assertTrue(hasattr(WPPost, "include_fields_initial_import"))
         self.assertTrue(hasattr(WPPost, "process_fields"))
         self.assertTrue(hasattr(WPPost, "process_foreign_keys"))
