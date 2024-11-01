@@ -38,26 +38,22 @@ class WordpressModel(models.Model):
         either name or title depending on the model."""
         return self.title if hasattr(self, "title") else self.name
 
-    def exclude_fields_initial_import(self):
-        """Fields to exclude in the initial import."""
-        exclude_foreign_keys = []
-        for field in self.process_foreign_keys():
-            for key, _ in field.items():
-                exclude_foreign_keys.append(key)
-
-        exclude_many_to_many_keys = []
-        for field in self.process_many_to_many_keys():
-            for key, _ in field.items():
-                exclude_many_to_many_keys.append(key)
-
-        return exclude_foreign_keys + exclude_many_to_many_keys
-
     def include_fields_initial_import(self):
         """Fields to include in the initial import."""
+        excludes = []
+
+        for field in self.process_foreign_keys():
+            for key in field.keys():
+                excludes.append(key)
+
+        for field in self.process_many_to_many_keys():
+            for key in field.keys():
+                excludes.append(key)
+
         import_fields = [
             f.name
             for f in self._meta.get_fields()
-            if f.name != "id" and f.name not in self.exclude_fields_initial_import(self)
+            if f.name != "id" and f.name not in excludes
         ]
 
         return import_fields
