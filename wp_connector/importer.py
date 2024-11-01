@@ -197,7 +197,7 @@ class Importer:
                     if href.startswith("https://"):
                         href = href.replace("https://", "")
                     # prepend the netloc
-                    link["href"] = f"http://{self.netloc}/{href.strip("/")}"
+                    link["href"] = f"http://{self.netloc}/{href.strip('/')}"
                     print(f"Links made absolute {obj} {field} - {link['href']}")
 
                 setattr(obj, field, str(soup))

@@ -57,7 +57,7 @@ class WordpressModel(models.Model):
         import_fields = [
             f.name
             for f in self._meta.get_fields()
-            if f.name != "id" and f.name not in self.exclude_fields_initial_import(self)
+            if f.name != "id" and f.name not in self.exclude_fields_initial_import()
         ]
 
         return import_fields
@@ -97,8 +97,7 @@ class ExportableMixin:
         super().__init__(*args, **kwargs)
         if not self.WAGTAIL_PAGE_MODEL:
             raise NotImplementedError(
-                self._meta.object_name
-                + "Model must have a TARGET_WAGTAIL_PAGE_MODEL attribute",
+                "Concrete Wordpress Model must have a WAGTAIL_PAGE_MODEL attribute",
             )
 
     WAGTAIL_PAGE_MODEL = None  # e.g. "blog.BlogPage"
@@ -110,13 +109,12 @@ class ExportableMixin:
 class StreamFieldMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not self.WAGTAIL_PAGE_MODEL:
+        if not hasattr(self, "STREAMFIELD_MAPPING") or not self.STREAMFIELD_MAPPING:
             raise NotImplementedError(
-                self._meta.object_name
-                + "Model must have a TARGET_WAGTAIL_PAGE_MODEL attribute",
+                "Concrete Wordpress Model must have a STREAMFIELD_MAPPING attribute",
             )
 
-    STREAMFIELD_MAPPING = {}  # e.g. {[object_field]: [wagtail_field]}
+    # STREAMFIELD_MAPPING = {}  # e.g. {[object_field]: [wagtail_field]}
 
     def get_streamfield_mapping(self):
         """Get the streamfield mapping for the Wordpress object."""
