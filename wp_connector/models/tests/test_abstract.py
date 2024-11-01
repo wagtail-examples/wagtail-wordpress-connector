@@ -34,7 +34,6 @@ class TestWordpressModel(TestCase):
 
         # methods
         self.assertTrue(hasattr(WordpressModel, "get_title"))
-        self.assertTrue(hasattr(WordpressModel, "exclude_fields_initial_import"))
         self.assertTrue(hasattr(WordpressModel, "include_fields_initial_import"))
         self.assertTrue(hasattr(WordpressModel, "process_fields"))
         self.assertTrue(hasattr(WordpressModel, "process_foreign_keys"))
@@ -47,21 +46,21 @@ class TestWordpressModel(TestCase):
 
     def test_source_url(self):
         # raises error if SOURCE_URL is None
-        class TestModel(WordpressModel):
+        class A(WordpressModel):
             pass
 
         with self.assertRaises(NotImplementedError) as e:
-            TestModel()
+            A()
             self.assertEqual(
                 str(e),
                 "TestModelModel must have a SOURCE_URL attribute",
             )
 
         # testing get_source_url
-        class TestModel(WordpressModel):
+        class B(WordpressModel):
             SOURCE_URL = "http://localhost:8888/wp-json/wp/v2/anyendpoint"
 
-        test_model = TestModel()
+        test_model = B()
         self.assertEqual(
             test_model.get_source_url(),
             "http://localhost:8888/wp-json/wp/v2/anyendpoint",
@@ -76,7 +75,7 @@ class TestWordpressModel(TestCase):
         self.assertEqual(WordpressModel.process_block_fields(), [])
 
         # returns list
-        class TestModel(WordpressModel):
+        class C(WordpressModel):
             SOURCE_URL = "http://localhost:8888/wp-json/wp/v2/posts"
 
             def process_fields():
@@ -94,39 +93,47 @@ class TestWordpressModel(TestCase):
             def process_block_fields():
                 return ["field"]
 
-        self.assertEqual(TestModel.process_fields(), ["field"])
+        self.assertEqual(C.process_fields(), ["field"])
         self.assertEqual(
-            TestModel.process_foreign_keys(),
+            C.process_foreign_keys(),
             [{"key": {"model": "Model", "field": "field"}}],
         )
         self.assertEqual(
-            TestModel.process_many_to_many_keys(),
+            C.process_many_to_many_keys(),
             [{"key": {"model": "Model", "field": "field"}}],
         )
-        self.assertEqual(TestModel.process_clean_fields(), ["field"])
-        self.assertEqual(TestModel.process_block_fields(), ["field"])
+        self.assertEqual(C.process_clean_fields(), ["field"])
+        self.assertEqual(C.process_block_fields(), ["field"])
 
     def test_get_title(self):
         # returns title
-        class TestModel(WordpressModel):
+        class D(WordpressModel):
             SOURCE_URL = "http://localhost:8888/wp-json/wp/v2/anyendpoint"
 
-        test_model = TestModel()
+        test_model = D()
         test_model.title = "Title"
         test_model.name = "Name"
         self.assertEqual(test_model.get_title, "Title")
 
         # returns name
-        test_model = TestModel()
+        test_model = D()
         test_model.name = "Name"
         self.assertEqual(test_model.get_title, "Name")
 
     def test_include_fields_initial_import(self):
         # returns fields
-        class TestModel(WordpressModel):
+        class E(WordpressModel):
             SOURCE_URL = "http://localhost:8888/wp-json/wp/v2/anyendpoint"
 
-        test_model = TestModel()
+        test_model = E()
+        test_model.process_foreign_keys = lambda: [
+            {"author": {"model": "WPAuthor", "field": "fake_1_id"}}
+        ]
+        test_model.process_many_to_many_keys = lambda: [
+            {
+                "categories": {"model": "WPCategory", "field": "fake_2_id"},
+            }
+        ]
         self.assertEqual(
             test_model.include_fields_initial_import(),
             [
@@ -140,30 +147,6 @@ class TestWordpressModel(TestCase):
             ],
         )
 
-    def test_exclude_fields_initial_import(self):
-        # returns empty list
-        class TestModel(WordpressModel):
-            SOURCE_URL = "http://localhost:8888/wp-json/wp/v2/anyendpoint"
-
-        test_model = TestModel()
-        self.assertEqual(test_model.exclude_fields_initial_import(), [])
-
-        # returns list
-        class TestModel(WordpressModel):
-            SOURCE_URL = "http://localhost:8888/wp-json/wp/v2/anyendpoint"
-
-            def process_foreign_keys(self):
-                return [{"key": {"model": "Model", "field": "field"}}]
-
-            def process_many_to_many_keys(self):
-                return [{"key": {"model": "Model", "field": "field"}}]
-
-        test_model = TestModel()
-        self.assertEqual(
-            test_model.exclude_fields_initial_import(),
-            ["key", "key"],
-        )
-
 
 class TestExportableMixin(TestCase):
     def test_attrs(self):
@@ -174,45 +157,49 @@ class TestExportableMixin(TestCase):
         self.assertTrue(hasattr(ExportableMixin, "WAGTAIL_REQUIRED_FIELDS"))
 
         # raises error
-        class TestModel(ExportableMixin):
+        class A(ExportableMixin):
             pass
 
         with self.assertRaises(NotImplementedError) as e:
-            TestModel()
+            A()
             self.assertEqual(
                 str(e),
                 "Concrete Wordpress Model must have a WAGTAIL_PAGE_MODEL attribute",
             )
 
+    def test_attrs_raises_error(self):
         # doesn't raise an error
-        class TestModel(ExportableMixin):
+        class B(ExportableMixin):
             WAGTAIL_PAGE_MODEL = "home.StandardPage"
 
-        TestModel()
+        B()
 
 
 class TestStreamFieldMixin(TestCase):
     def test_attrs(self):
         # raises error
-        class TestModel(StreamFieldMixin):
+        class A(StreamFieldMixin):
             pass
 
         with self.assertRaises(NotImplementedError) as e:
-            TestModel()
+            A()
             self.assertEqual(
                 str(e),
                 "Concrete StreamField Model must have a STREAMFIELD_MAPPING attribute",
             )
 
+    def test_attrs_raises_error(self):
         # doesn't raise an error
-        class TestModel(StreamFieldMixin):
+        class B(StreamFieldMixin):
             STREAMFIELD_MAPPING = {"content": "body"}
 
-        TestModel()
+        B()
+
+    def test_attrs_streamfield_mapping(self):
 
         # get_streamfield_mapping
-        class TestModel(StreamFieldMixin):
+        class C(StreamFieldMixin):
             STREAMFIELD_MAPPING = {"content": "body"}
 
-        test_model = TestModel()
+        test_model = C()
         self.assertEqual(test_model.get_streamfield_mapping(), {"content": "body"})
