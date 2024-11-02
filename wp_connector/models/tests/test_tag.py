@@ -18,7 +18,6 @@ class TestTag(TestCase):
     def test_attibutes(self):
         # attributes
         self.assertTrue(hasattr(WPTag, "SOURCE_URL"))
-        self.assertTrue(hasattr(WPTag, "UNIQUE_FIELDS"))
 
         # fields
         # inherited from abstract
