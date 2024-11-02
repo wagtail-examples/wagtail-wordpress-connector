@@ -1,10 +1,10 @@
-import sys
-
 import requests
+
+from wp_connector.messages import ClientExitException, ClientMessage
 
 
 class Client:
-    """A simple client for the WordPress REST API.
+    """A client for the WordPress REST API.
     On been instantiated, the client will fetch the first page of the endpoint.
 
     It will set the following class properties that can be used to determine:
@@ -16,22 +16,45 @@ class Client:
     Calling the get() method will return the JSON response from the endpoint.
     """
 
-    _session = requests.Session()
-
     def __init__(self, url):
+        self.client_exception = ClientExitException()
+        self.client_message = ClientMessage()
         self.url = url
 
+        # Test that the _session can be created
+        # e.g. the server is alive
+        self._session = requests.Session()
+        try:
+            self._session.get(self.url)
+        except requests.exceptions.ConnectionError:
+            self.client_exception.error_message(f"Could not connect to {self.url}")
+
+        # Fetch the first page of the endpoint and
+        # set the data for the class properties
         try:
             self.response = self._session.get(self.url)
-            sys.stdout.write(f"Fetching {self.url}\n")
-        except Exception as e:
-            sys.stdout.write(f"Error: {e}\n")
+            if self.response.status_code != 200:
+                self.client_exception.error_message(
+                    f"Could not connect to {self.url} the status code is {self.response.status_code}"
+                )
+            self.client_message.success_message(f"Connected to {self.url}")
+        except ClientExitException as e:
+            self.client_exception.error_message(
+                f"Could not connect to {self.url} the error is {e}"
+            )
 
     def get(self, url):
         try:
-            return self._session.get(url).json()
-        except Exception as e:
-            raise e
+            response = self._session.get(url)
+            if response.status_code != 200:
+                self.client_exception.error_message(
+                    f"Could not connect to {url} the status code is {response.status_code}"
+                )
+            return response.json()
+        except ClientExitException as e:
+            self.client_exception.error_message(
+                f"Could not connect to {url} the error is {e}"
+            )
 
     @property
     def is_paged(self):
