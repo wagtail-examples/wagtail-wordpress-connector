@@ -104,7 +104,7 @@ def up():
 
 
 @wp.command()
-def stop():
+def down():
     """Wordpress: stop the container"""
     subprocess.run([DC, "down"], cwd=WORDPRESS_ROOT)
 
