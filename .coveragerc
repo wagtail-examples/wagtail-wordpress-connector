@@ -13,10 +13,8 @@ omit =
     home/*
     search/*
     manage.py
-    wp_connector/wagtail_hooks.py
-    wp_connector/field_panels.py
 
-source = .
+source = ./wp_connector
 
 
 [report]
