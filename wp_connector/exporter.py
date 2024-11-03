@@ -103,9 +103,6 @@ class Exporter:
             self.wagtail_page_model_parent.split(".")[1],
         ).objects.first()
 
-    def get_wordpress_instance(self):
-        return self.admin.model.objects.get(wp_id=self.obj.wp_id)
-
     def set_fields(self, wagtail_page):
         for wp_field, wagtail_field in self.field_mapping.items():
             if self.stream_field_mapping and wp_field in self.stream_field_mapping:
@@ -169,9 +166,9 @@ class Exporter:
 
     def do_create_wagtail_page(self):
         # The worpress model instance
-        wp_instance = self.get_wordpress_instance()
+        wp_instance = self.obj
         # Ignore if the wagtail page is already created
-        if wp_instance.wagtail_page_id:
+        if self.obj.wagtail_page_id:
             return {
                 "message": f"Wagtail page already created. {wp_instance.title}",
                 "level": "WARNING",
@@ -214,7 +211,7 @@ class Exporter:
 
     def do_update_wagtail_page(self):
         # The worpress model instance
-        wp_instance = self.get_wordpress_instance()
+        wp_instance = self.obj
         if not wp_instance.wagtail_page_id:
             return f"Wagtail page not created. {wp_instance.wagtail_page_id}"
 
