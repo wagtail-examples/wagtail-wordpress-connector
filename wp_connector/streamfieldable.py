@@ -112,20 +112,17 @@ def build_definition_list_block(tag, *args, **kwargs):
     list_items = []
 
     for item in tag.find_all("dt"):
-        # Try/Except to handle cases where the tag is empty and ouput to the console
-        # so the developer can see what is missing
+        # Try/Except to handle cases where the tag is empty
         # But still continue to the next item and not break the loop
         try:
             term = item.text
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             term = ""
-            print(f"Empty term in definition list: {tag} {item} {args} {kwargs}")
 
         try:
             definition = item.find_next("dd").text
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             definition = ""
-            print(f"Empty definition in definition list: {tag} {item} {args} {kwargs}")
 
         list_items.append({"term": term, "definition": definition})
 
