@@ -37,3 +37,15 @@ class TestClient(TestCase):
                 "http://localhost:8888/wp-json?page=10",
             ],
         )
+
+    @responses.activate
+    def test_get(self):
+        responses.add(
+            responses.GET,
+            "http://localhost:8888/wp-json",
+            status=200,
+            json={"key": "value"},
+        )
+        client = Client("http://localhost:8888/wp-json")
+
+        self.assertEqual(client.get("http://localhost:8888/wp-json"), {"key": "value"})

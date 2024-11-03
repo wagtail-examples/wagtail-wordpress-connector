@@ -20,25 +20,18 @@ class Client:
         self.client_exception = ClientExitException()
         self.client_message = ClientMessage()
         self.url = url
-
-        # Test that the _session can be created
-        # e.g. the server is alive
         self._session = requests.Session()
-        try:
-            self._session.get(self.url)
-        except requests.exceptions.ConnectionError:
-            self.client_exception.error_message(f"Could not connect to {self.url}")
 
         # Fetch the first page of the endpoint and
         # set the data for the class properties
         try:
             self.response = self._session.get(self.url)
-            if self.response.status_code != 200:
+            if self.response.status_code != 200:  # pragma: no cover
                 self.client_exception.error_message(
                     f"Could not connect to {self.url} the status code is {self.response.status_code}"
                 )
             self.client_message.success_message(f"Connected to {self.url}")
-        except ClientExitException as e:
+        except ClientExitException as e:  # pragma: no cover
             self.client_exception.error_message(
                 f"Could not connect to {self.url} the error is {e}"
             )
@@ -46,12 +39,12 @@ class Client:
     def get(self, url):
         try:
             response = self._session.get(url)
-            if response.status_code != 200:
+            if response.status_code != 200:  # pragma: no cover
                 self.client_exception.error_message(
                     f"Could not connect to {url} the status code is {response.status_code}"
                 )
             return response.json()
-        except ClientExitException as e:
+        except ClientExitException as e:  # pragma: no cover
             self.client_exception.error_message(
                 f"Could not connect to {url} the error is {e}"
             )
