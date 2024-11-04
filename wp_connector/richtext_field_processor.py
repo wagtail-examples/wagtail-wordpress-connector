@@ -9,6 +9,13 @@ from wagtail.models import Page
 
 @dataclass
 class FieldProcessor:
+    """
+    A utility class to process richtext fields and stream fields of a Wagtail page
+    to alter anchor links as required by the richtext field.
+
+    Later I'll be adding the methdos to process images too
+    """
+
     obj: object
 
     wordpress_instance: object = field(init=False)
