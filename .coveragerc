@@ -14,7 +14,7 @@ omit =
     search/*
     manage.py
 
-source = .
+source = ./wp_connector
 
 
 [report]

@@ -2,6 +2,7 @@ services:
 
   wordpress:
     image: wordpress:latest
+    platform: linux/x86_64
     restart: always
     ports:
       - 8888:80 # needs to match the port used in init.sh`
@@ -22,6 +23,7 @@ services:
 
   db:
     image: mysql:5.7
+    platform: linux/x86_64
     restart: always
     env_file:
       - .env

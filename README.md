@@ -4,18 +4,20 @@ This is an experimental project to import WordPress page and posts into Wagtail.
 
 ## Requirements
 
-- Python 3.10+
-- Poetry
-- Docker
+- Python 3.10+ (earlier versions may work)
+- Poetry & Docker
 - WordPress CLI
-- Wordpress Theme Test Data
-- Wagtail
-- Django
+- Wordpress Data (currently using a test data set used for building themes)
+- Wagtail v6.3 (earlier versions may work)
+- Django v5.1 (earlier versions may work)
 - Lots of patience :)
 
 ## Overall Plan
 
-The plan is to create a WordPress importer that can import WordPress pages and posts into Wagtail.
+- To demostrate importing WordPress content into a Django admin instance.
+- Be able to alter the imported data if required using the django-admin.
+- Be able to export the imported data over to a Wagtail site.
+- Exporting crates Pages and Posts that mirror the content from wordpress.
 
 The importer will be a Django management command that will import the data from a WordPress instance and provide a basic admin interface using the django-admin to select and export the data to Wagtail. (posts and pages only at this time, but linked data such as authors, categories, tags, etc. will alos be exported to Wagtail snippets and taggit tags)
 
@@ -24,7 +26,7 @@ The wordpress instance has it's JSON api enabled so the importer can access the 
 
 The action of transferring the data to Wagtail will done using Django admin actions that export the data to Wagtail. This way the Wagtail site will have no dependency on the WordPress instance and all code will be contained in the wp_connector module. Then once all data is transferred the wp_connector migrations can be rolled back and the module can be removed.
 
-The only module that should be added to your final production site, for creating the page and posts ion Wagtail, is the `wp_connector` module, add some temporary configuration to Wagtail and run the importer against your own live WordPress instance, whcih will need it's JSON api enabled.
+The only module that should be added to your final production site, for creating the page and posts on Wagtail, is the `wp_connector` module, add some temporary configuration to Wagtail and run the importer against your own live WordPress instance, which will need it's JSON api enabled.
 
 ## Set Up
 
@@ -42,15 +44,7 @@ poetry install
 poetry shell
 ```
 
-3. Initilase and start Wagtail and Django:
-
-```
-./manage.py migrate
-./manage.py createsuperuser
-./manage.py runserver
-```
-
-4. Start up the wordress instance:
+3. Start up the wordress instance and load the test data:
 
 ```
 wp build
@@ -62,6 +56,17 @@ This gives you a WordPress instance running at `http://localhost:8888` with test
 
 The wordpress admin is at `http://localhost:8888/wp-admin` with the username `admin` and password `password`.
 
+4. Initilase and start Wagtail and Django:
+
+```
+wt migrate
+wt superuser
+wt runserver
+```
+
+This gives you a Wagtail instance running at `http://localhost:8000` with the Wagtail admin at `http://localhost:8000/admin`
+
+The username and passowrd you added above can be used to log into the Wagtail admin.
 
 #### Importer
 
@@ -89,24 +94,57 @@ The setup is now complete and ready for the wordpress content to be transfered t
 
 The django admin is at `http://localhost:8000/import-admin`
 
-
 ## Exporting the data to Wagtail
 
 Exporting data to Wagtail is done using the Django admin.
 
 1. Go to the Django admin at `http://localhost:8000/import-admin`
-2. Select the items you want to export to Wagtail. At this time only Posts and Pages are supported but any linked data such as authors, categories, tags ect. will be exported to Wagtail snippets and taggit tags.
+2. At this time only Posts and Pages are supported but any linked data such as authors, categories, tags ect. will be exported to Wagtail snippets and taggit tags.
 
 ### Exporting Posts
 
+From this page <http://localhost:8000/import-admin/wp_connector/wppost/>
+
 1. Select the posts you want to export (you can select all by clicking the checkbox in the header)
-2. Select the action `Create Wagtail Blog Pages`
+2. Select the action `Create new Wagtail from selected`
 3. Click `Go`
 4. The posts will be exported to Wagtail as blog pages
 
 ### Exporting Pages
 
 1. Select the pages you want to export (you can select all by clicking the checkbox in the header)
-2. Select the action `Create Wagtail Pages`
+2. Select the action `Create new Wagtail from selected`
 3. Click `Go`
 4. The pages will be exported to Wagtail as pages
+
+#### Cateogries and Tags
+
+If a wordpress page has foriegn keys to categories and/or tags, the importer will create Wagtail snippets and taggit tags to hold the data and add the appropriate relationships to the Wagtail pages.
+
+### Further actions
+
+#### Redirects
+
+Pages and posts exported to Wagtail could have slightly different urls/slugs to the original WordPress urls. To handle this, a redirect can be created from the old WordPress url to the new Wagtail url.
+
+You can create the redirects using the `Create Wagtail Redirects from selected` action.
+
+#### Content anchor links
+
+Richtext fields in Wagtail do not support regular anchor links. To handle this you can use the action `Update Anchor Links in content fields` to convert the anchor links to Wagtail internal links.
+
+This works for both single richtext fields and richtext fields within StreamFields.
+
+## Still to do
+
+- Images are not yet imported
+- Comments are not yet imported
+- and probably lots more I've not yet thought of 😆
+
+## Issues
+
+I am maintaing a list of issues and features in the [issues](https://github.com/wagtail-examples/wagtail-wordpress-connector/issues) section of the repository.
+
+## Contributing
+
+If you would like to contribute to this project, please fork the repository and submit a pull request.

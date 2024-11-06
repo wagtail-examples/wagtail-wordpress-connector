@@ -7,8 +7,6 @@ class WPTag(WordpressModel):
     """Model definition for Tags."""
 
     SOURCE_URL = "/wp-json/wp/v2/tags"
-    UNIQUE_FIELDS = ["name"]
-    # TODO side effect of this is that it will not update the tag if it already exists
 
     name = models.CharField(max_length=255)
     count = models.IntegerField(default=0)

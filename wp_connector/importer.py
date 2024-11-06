@@ -1,4 +1,3 @@
-import sys
 from urllib.parse import urlparse
 
 import jmespath
@@ -6,6 +5,7 @@ from bs4 import BeautifulSoup as bs
 from django.apps import apps
 
 from wp_connector.client import Client
+from wp_connector.messages import ClientExitException, ClientMessage
 
 
 class Importer:
@@ -13,31 +13,39 @@ class Importer:
         self.client = Client(url)
         self.netloc = urlparse(url).netloc
         self.model = apps.get_model("wp_connector", model_name)
-        self.fk_objects = []
-        self.mtm_objects = []
+        self.one_to_many = []
+        self.many_to_many = []
         self.import_fields = self.model.include_fields_initial_import(self.model)
+        self.client_exception = ClientExitException()
+        self.client_message = ClientMessage()
 
     def import_data(self):
-        """Import data from wordpress api for each endpoint"""
+        """
+        Import data from wordpress api for each endpoint.
+        The actions taken to import each endpoiint reply heavily on the model
+        been imported. Most if not all actions are defined in the model. So hopefully this
+        class can be used for all models.
 
-        sys.stdout.write("Importing data...\n")
+        There are 2 stages that happen here:
+
+        Stage 1:
+        1. Get the data from the endpoint
+        2. Rename the id field to wp_id
+        3. Get the data we need from the json response
+        4. Update or create the model with the data
+        5. Make all relative links absolute
+
+        Stage 2:
+        1. Process the foreign keys
+        2. Process the many to many keys
+        """
+
+        self.client_message.info_message(f"Importing data for {self.model.__name__}...")
 
         for endpoint in self.client.paged_endpoints:
-            sys.stdout.write(f"Importing {self.model.__name__} {endpoint}...\n")
             json_response = self.client.get(endpoint)
 
             for item in json_response:
-                # Some wordpress records have duplicate, essentially unique fields
-                # e.g. Tags has name and slug field but names can be the same
-                # That doesn't work well with taggit default model, but why would you have 2 the same anyway?
-                if hasattr(self.model, "UNIQUE_FIELDS"):
-                    qs = self.model.objects.filter(
-                        **{field: item[field] for field in self.model.UNIQUE_FIELDS}
-                    )
-                    if qs.exists():
-                        continue  # bail out of this loop,
-                        # TODO: the side effect is the object won't be updated only created
-
                 # rename the id field to wp_id
                 item["wp_id"] = item.pop("id")
                 data = {
@@ -58,47 +66,23 @@ class Importer:
 
                 self.make_absolute_links(obj)
 
-                sys.stdout.write(f"Created {obj}\n" if created else f"Updated {obj}\n")
-
-                # cache each object for later processing
-                self.fk_objects.append(obj)
-
                 # foreign keys
-                foreign_key_data = self.get_foreign_key_data(
+                # cache each object for later processing
+                self.one_to_many.append(obj)
+                obj.wp_foreign_keys = self.get_foreign_key_data(
                     self.model.process_foreign_keys, self.model, item
                 )
 
-                obj.wp_foreign_keys = foreign_key_data
-
+                # many to many keys
                 # cache each object for later processing
-                self.mtm_objects.append(obj)
-
-                # Process many to many keys
-                many_to_many_data = self.get_many_to_many_data(
+                self.many_to_many.append(obj)
+                obj.wp_many_to_many_keys = self.get_many_to_many_data(
                     self.model.process_many_to_many_keys, item
                 )
 
-                obj.wp_many_to_many_keys = many_to_many_data
-
-                # process clean fields (html)
-                # self.process_clean_fields(
-                #     self.model.process_clean_fields,
-                #     self.model.clean_content_html,
-                #     self.cleaned_objects,
-                #     data,
-                #     obj,
-                # )
-
-        # process foreign keys here so we have access to all possible
-        # foreign keys if the foreign key is self referencing
-        # for none self referencing foreign keys the order of imports matters
-        self.process_fk_objects(self.fk_objects)
-        self.process_mtm_objects(self.mtm_objects)
-
-        # process wagtail blocks
-        # self.process_wagtail_block_content(
-        #     self.model.process_block_fields(), self.cleaned_objects
-        # )
+        # processing foreign keys here as we have access to all the data now
+        self.process_one_to_many(self.one_to_many)
+        self.process_many_to_many(self.many_to_many)
 
     @staticmethod
     def get_many_to_many_data(process_many_to_many_keys, item):
@@ -177,6 +161,9 @@ class Importer:
         """
         if hasattr(obj, "FIELD_MAPPING"):
             for field in obj.FIELD_MAPPING.keys():
+                # in testing with the wordpress theme data the content here can be flagged by BeautifulSoup
+                # as looking like a url, it can be ignored. This should be the case with other data too.
+                # e.g. MarkupResemblesLocatorWarning: "***" looks like a URL.
                 soup = bs(getattr(obj, field), "html.parser")
                 for link in soup.find_all("a"):
                     if not link.get("href"):
@@ -198,31 +185,13 @@ class Importer:
                         href = href.replace("https://", "")
                     # prepend the netloc
                     link["href"] = f"http://{self.netloc}/{href.strip('/')}"
-                    print(f"Links made absolute {obj} {field} - {link['href']}")
+                    self.client_message.success_message(f"Links made absolute {obj}")
 
                 setattr(obj, field, str(soup))
-        else:
-            print(f"AttributeError: {obj}, it has no FIELD_MAPPING")
 
-    # @staticmethod
-    # def process_clean_fields(
-    #     clean_fields, clean_content_html, cleaned_objects, data, obj
-    # ):
-    #     for cleaned_field in clean_fields():
-    #         for source_field, destination_field in cleaned_field.items():
-    #             setattr(
-    #                 obj,
-    #                 destination_field,
-    #                 clean_content_html(data[source_field]),
-    #             )
-
-    #         cleaned_objects.append(obj)
-    #         obj.save()
-
-    @staticmethod
-    def process_fk_objects(fk_objects):
-        sys.stdout.write("Processing foreign keys...\n")
-        for obj in fk_objects:
+    def process_one_to_many(self, objects):
+        self.client_message.info_message("Processing foreign keys...")
+        for obj in objects:
             for relation in obj.wp_foreign_keys:
                 for field, value in relation.items():
                     try:
@@ -231,15 +200,14 @@ class Importer:
                         value = value["value"]
                         setattr(obj, field, model.objects.get(**{where: value}))
                     except model.DoesNotExist:
-                        sys.stdout.write(
-                            f"""Could not find {model.__name__} with {where}={value}. {obj} with id={obj.id}\n"""
+                        self.client_message.info_message(
+                            f"Could not find {model.__name__} with {where}={value}. {obj} with id={obj.id}"
                         )
                 obj.save()
 
-    @staticmethod
-    def process_mtm_objects(mtm_objects):
-        sys.stdout.write("Processing many to many keys...\n")
-        for obj in mtm_objects:
+    def process_many_to_many(self, objects):
+        self.client_message.info_message("Processing many to many keys...")
+        for obj in objects:
             for relation in obj.wp_many_to_many_keys:
                 related_objects = []
                 for field, value in relation.items():
@@ -247,26 +215,9 @@ class Importer:
                     filter = f"""{value["where"]}__in"""
                     related_objects = model.objects.filter(**{filter: value["value"]})
                     if len(related_objects) != len(value["value"]):
-                        sys.stdout.write(
+                        self.client_message.info_message(
                             f"""Some {model.__name__} objects could not be found. {obj} with id={obj.id}\n"""
                         )
 
                 for related_object in related_objects:
                     getattr(obj, field).add(related_object)
-
-    # @staticmethod
-    # def process_wagtail_block_content(block_fields, cleaned_objects):
-    #     sys.stdout.write("Processing Wagtail block content...\n")
-
-    #     for obj in cleaned_objects:
-    #         # get the configured fields to process
-    #         for operation in block_fields:
-    #             fields = ()
-    #             for k, v in operation.items():
-    #                 fields = (k, v)
-
-    #             source_data = getattr(obj, fields[0])
-    #             block_data = WagtailBlockBuilder().build(source_data)
-    #             # print(block_data)
-    #             setattr(obj, fields[1], block_data)
-    #             obj.save()

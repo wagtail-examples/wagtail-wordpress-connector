@@ -12,14 +12,6 @@ class TestClient(TestCase):
         self.assertEqual(client.url, "http://localhost:8888/wp-json")
 
     @responses.activate
-    def test_exception(self):
-        responses.add(responses.GET, "http://localhost:8888/wp-json", status=500)
-        client = Client("http://localhost:8888/wp-json")
-        self.assertEqual(client.response.status_code, 500)
-        with self.assertRaises(Exception):
-            client.get("http://localhost:8888/wp-json")
-
-    @responses.activate
     def test_headers(self):
         responses.add(
             responses.GET,
@@ -45,3 +37,15 @@ class TestClient(TestCase):
                 "http://localhost:8888/wp-json?page=10",
             ],
         )
+
+    @responses.activate
+    def test_get(self):
+        responses.add(
+            responses.GET,
+            "http://localhost:8888/wp-json",
+            status=200,
+            json={"key": "value"},
+        )
+        client = Client("http://localhost:8888/wp-json")
+
+        self.assertEqual(client.get("http://localhost:8888/wp-json"), {"key": "value"})
