@@ -1,10 +1,13 @@
 <fieldset>
-    {% if self.instance_url %}
-    {% if self.heading %}
-        <legend class="w-sr-only">{{ self.heading }}</legend>
-    {% endif %}
-    <div class="{{ self.classname }}">View the wordpress record this page is derived from: <a href="{{ self.instance_url }}">{{ self.instance_title }}</a></div>
+    {% if not self.instance.url %}
+    <div class="help-block help-info">
+        <svg class="icon icon-help icon" aria-hidden="true"><use href="#icon-help"></use></svg>
+        <p>This page is not derived from a wordpress record</p>
+    </div>
     {% else %}
-    <div class="{{ self.classname }}">This page is not derived from a wordpress record</div>
+    <div class="help-block help-info">
+        <svg class="icon icon-help icon" aria-hidden="true"><use href="#icon-help"></use></svg>
+        <p>View the wordpress record this page is derived from: <a href="{{ self.instance_url }}">{{ self.instance.title }}</a></p>
+    </div>
     {% endif %}
 </fieldset>

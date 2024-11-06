@@ -5,9 +5,9 @@ from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
 from wagtail.admin.panels import (
     FieldPanel,
-    FieldRowPanel,
     InlinePanel,
-    MultiFieldPanel,
+    ObjectList,
+    TabbedInterface,
     TitleFieldPanel,
 )
 from wagtail.fields import RichTextField, StreamField
@@ -130,22 +130,38 @@ class BlogPage(Page):
 
     content_panels = Page.content_panels + [
         WordpressInfoPanel(content="wp_connector.WPPost"),
-        MultiFieldPanel(
-            [
-                FieldRowPanel(
-                    [
-                        FieldPanel("date"),
-                        FieldPanel("author"),
-                    ]
-                ),
-                FieldPanel("tags"),
-                InlinePanel("categories", label="Categories"),
-            ],
-            heading="Blog information",
+        FieldPanel(
+            "intro",
+            help_text="Introductory text will be displayed on the blog index page",
         ),
-        FieldPanel("intro"),
-        FieldPanel("body"),
+        FieldPanel("body", help_text="Full text of the blog post"),
     ]
+
+    metadata_panel = [
+        FieldPanel(
+            "date", help_text="Choose a post date you want to display to site visitors"
+        ),
+        FieldPanel("author", help_text="Choose an author of the blog post"),
+    ]
+
+    taxonomies_panels = [
+        FieldPanel("tags", help_text="Add tags to filter the blog post"),
+        InlinePanel(
+            "categories",
+            help_text="Add categories to group the blog post",
+            label="Categories",
+        ),
+    ]
+
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading="Content"),
+            ObjectList(Page.promote_panels, heading="Promote"),
+            ObjectList(Page.settings_panels, heading="Settings", classname="settings"),
+            ObjectList(metadata_panel, heading="Blog Metadata"),
+            ObjectList(taxonomies_panels, heading="Blog Taxonomies"),
+        ]
+    )
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
