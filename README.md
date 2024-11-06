@@ -140,3 +140,11 @@ This works for both single richtext fields and richtext fields within StreamFiel
 - Images are not yet imported
 - Comments are not yet imported
 - and probably lots more I've not yet thought of 😆
+
+## Issues
+
+I am maintaing a list of issues and features in the [issues](https://github.com/wagtail-examples/wagtail-wordpress-connector/issues) section of the repository.
+
+## Contributing
+
+If you would like to contribute to this project, please fork the repository and submit a pull request.
