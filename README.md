@@ -1,4 +1,4 @@
-# Experimental Wagtail Wordess Importer
+# Experimental Wordess to Wagtail Importer
 
 This is an experimental project to import WordPress content including pages and posts into Wagtail.
 
@@ -24,6 +24,10 @@ It's not yet ready for production use but a lot of the basic functionality is in
 - Be able to manage the imported data in Wagtail which will have no dependency on the WordPress instance.
 - Once all data is transferred to Wagtail, the WordPress connector can be removed from the project and leaves no trace of the WordPress instance.
 
+![Example Screen Shot](./screen-wagtail.png "Wagtail site with imported WordPress data")
+
+![Example Screen Shot](./screen-wagtail-admin.png "Wagtail admin for managing imported data")
+
 ### Importing WordPress data
 
 The importer will use a Django management command that will import the data from a WordPress instance.
@@ -44,6 +48,7 @@ Images and docs linked to and embedded in the transferred pages and posts are al
 
 Once you have transferred all the data to Wagtail, you can remove the WordPress connector module. This will leave you with a Wagtail site that has no dependency on the WordPress instance. You can then manage the site as you would any other Wagtail site.
 
+![Example Screen Shot](./screen-django.png "Django Admin for transferring data")
 
 ## Set Up Locally
 
