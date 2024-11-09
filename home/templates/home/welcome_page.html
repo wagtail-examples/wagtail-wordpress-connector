@@ -10,15 +10,15 @@
         </div>
         <div>
             <hgroup>
-                <h1>Wordpress Import Test Site</h1>
-                <p>a proof of concept: wp connector</p>
+                <h1>Wordpress to Wagtail</h1>
+                <p>a proof of concept</p>
             </hgroup>
             <ul>
-                <li>Import content from a Wordpress JSON api</a></li>
-                <li>Use the django admin to manage the imported data before creating Wagtail pages</li>
-                <li>Tested use the official Wordpress Theme testing data</li>
-                <li>Completely cusomisable to your requirements</li>
-                <li>Also imports taxonimoes and authors</li>
+                <li>To demostrate importing WordPress content into a Django admin instance.</li>
+                <li>Be able to manipulate the imported data using the django-admin.</li>
+                <li>Be able to transfer selected imported wordpress data over to a Wagtail site.</li>
+                <li>Be able to manage the imported data in Wagtail which will have no dependency on the WordPress instance.</li>
+                <li>Once all data is transferred to Wagtail, the WordPress connector can be removed from the project and leaves no trace of the WordPress instance.</li>
             </ul>
             {% get_blog_index_url as blog_index_url %}
             {% if not blog_index_url %}
