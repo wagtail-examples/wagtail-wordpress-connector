@@ -10,7 +10,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-wagtail = "^6.3"
+wagtail = "~6.4"
 jmespath = "^1.0.1"
 requests = "^2.32.3"
 rich-click = "^1.8.3"
@@ -22,9 +22,10 @@ black = "24.10.0"
 isort = "5.13.2"
 flake8 = "7.1.1"
 coverage = "^7.6.4"
-
-
 responses = "^0.25.3"
+pre-commit = "^4.1.0"
+
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
