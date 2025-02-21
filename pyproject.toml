@@ -11,6 +11,8 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.10"
 wagtail = "~6.4"
+django = "~5.1"
+beautifulsoup4 = "~4.12"
 jmespath = "^1.0.1"
 requests = "^2.32.3"
 rich-click = "^1.8.3"
@@ -18,12 +20,12 @@ django-extensions = "^3.2.3"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "24.10.0"
-isort = "5.13.2"
-flake8 = "7.1.1"
-coverage = "^7.6.4"
-responses = "^0.25.3"
-pre-commit = "^4.1.0"
+black = "25.1.0"
+isort = "6.0.0"
+flake8 = "7.1.2"
+coverage = "7.6.12"
+responses = "0.25.6"
+pre-commit = "4.1.0"
 
 
 [build-system]
