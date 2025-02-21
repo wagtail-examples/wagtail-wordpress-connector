@@ -20,7 +20,7 @@ INSTALLED_APPS += ["style_guide", "django_extensions"]  # noqa F405
 # e.g. when you are no longer using the import actions
 WAGTAILREDIRECTS_AUTO_CREATE = False
 
-# Cooment out if you need to use timezone aware datetimes
+# Comment out if you need to use timezone aware datetimes
 USE_TZ = False
 
 # Shell plus config
