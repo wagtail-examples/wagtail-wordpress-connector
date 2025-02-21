@@ -56,9 +56,9 @@ Once you have transferred all the data to Wagtail, you can remove the WordPress 
 
 ![Example Screen Shot](./docs/screen-django.png "Django Admin for transferring data")
 
-## Project Setup
+## Project Setup & Usage
 
-View the [Setup](./docs/setup.md) document for instructions on setting up the project.
+View the [Setup & Usage Guide](./docs/setup.md) for instructions on setting up the project.
 
 ## ToDo's
 

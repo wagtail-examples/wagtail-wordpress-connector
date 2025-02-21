@@ -1,4 +1,4 @@
-# Project Set Up
+# Set Up & Usage Guide
 
 You can run this example as a test bed for your own WordPress to Wagtail migration.
 
