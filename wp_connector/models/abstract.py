@@ -27,7 +27,9 @@ class WordpressModel(models.Model):
     wagtail_model = models.JSONField(blank=True, null=True)
     wp_cleaned_content = models.TextField(blank=True, null=True)
     wp_block_content = models.JSONField(blank=True, null=True)
-    wagtail_page_id = models.IntegerField(blank=True, null=True)
+
+    # avoid errors with models not exportable in django admin
+    wagtail_page_id = models.NOT_PROVIDED
 
     class Meta:
         abstract = True
@@ -88,7 +90,11 @@ class WordpressModel(models.Model):
         return self.SOURCE_URL.strip("/")
 
 
-class ExportableMixin:
+class ExportableWordpressModel(WordpressModel):
+    WAGTAIL_PAGE_MODEL = None  # e.g. "blog.BlogPage"
+    WAGTAIL_PAGE_MODEL_PARENT = None  # e.g. "blog.BlogIndexPage"
+    FIELD_MAPPING = {}  # e.g. {"title": "title"} {[object_field]: [wagtail_field]}
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.WAGTAIL_PAGE_MODEL:

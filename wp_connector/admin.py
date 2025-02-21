@@ -437,9 +437,10 @@ class BaseAdmin(admin.ModelAdmin):
         for obj in queryset:
             if not obj.wagtail_page_id:
                 # skip objects that do not have a wagtail_page_id
+                message_param = obj.title or obj.wp_id
                 self.handle_message_user(
                     request,
-                    f"Page doen't exist for {obj.title} yet. Use the 'Create New Wagtail Pages' action",
+                    f"Page doesn't exist for {message_param} yet. Use the 'Create New Wagtail Pages' action",
                     level="WARNING",
                 )
                 continue
@@ -454,6 +455,7 @@ class BaseAdmin(admin.ModelAdmin):
                     exporter.post_init_messages["message"],
                     level=exporter.post_init_messages["level"],
                 )
+
                 if exporter.post_init_messages.get("skip", False):
                     continue
 
