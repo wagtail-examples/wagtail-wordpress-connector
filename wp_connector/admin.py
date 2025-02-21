@@ -559,6 +559,8 @@ class BaseAdmin(admin.ModelAdmin):
             richtext_processor = FieldProcessor(obj)
             richtext_processor.process_fields()
 
+        self.handle_message_user(request, "Anchor Links Updated", level="SUCCESS")
+
     def delete_selected(self, admin, request, queryset):
         """
         Delete the selected wordpress objects
