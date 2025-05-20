@@ -1,6 +1,6 @@
 # Set Up & Usage Guide
 
-You can run this example as a test bed for your own WordPress to Wagtail migration.
+You can run this example as a test site for your own WordPress to Wagtail migration.
 
 This example has a Wordpress instance with test data and a Wagtail instance with the WordPress connector installed so you can see how the importer works.
 
@@ -11,8 +11,7 @@ The WordPress CLI is used to setup and initialse the WordPress instance.
 ### Create a virtual environment and install the requirements then activate the virtual environment:
 
 ```
-poetry install
-poetry shell
+uv venv
 ```
 
 ### Start up the wordress instance and load the test data:
@@ -24,19 +23,19 @@ The example has it's JSON api enabled so the importer can access the data.
 #### Build and initialises the wordpress instance
 
 ```
-wp build
+uv run wp build
 ```
 
 #### Start the wordpress docker container
 
 ```
-wp up
+uv run wp up
 ```
 
 #### Load the test data
 
 ```
-wp load
+uv run wp load
 ```
 
 You can access the WordPress site at `http://localhost:8888` with test data loaded.
@@ -50,9 +49,9 @@ Wagtail and Django are not run in Docker but are run in a virtual environment us
 ### Initilase and start Wagtail and Django:
 
 ```
-wt migrate
-wt superuser
-wt run
+uv run wt migrate
+uv run wt superuser
+uv run wt run
 ```
 
 You can access the Wagtail site at `http://localhost:8000` with the Wagtail admin at `http://localhost:8000/admin`
@@ -68,7 +67,7 @@ At this point there is no data in the Wagtail instance. You should see the Wagta
 The importer is a sequence of django management commands. To run the importer and import all the data from the wordpress instance, run:
 
 ```
-dj all
+uv run dj all
 ```
 
 This will import the whole sample data set into the Django instance.

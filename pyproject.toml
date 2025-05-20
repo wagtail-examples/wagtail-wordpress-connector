@@ -1,38 +1,37 @@
-[tool.poetry]
+[project]
 name = "wagtail-wordpress-connector"
 version = "0.1.0"
-description = ""
-authors = ["Nick Moreton <nickmoreton@me.com>"]
+description = "Add your description here"
 readme = "README.md"
-packages = [
-    { include = "commands", from = "." },
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.13.3",
+    "django>=4.2",
+    "django-extensions>=3.2.3",
+    "jmespath>=1.0.1",
+    "requests>=2.32.3",
+    "rich-click>=1.8.6",
+    "wagtail>=6.4",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-wagtail = "~6.4"
-django = "~5.1"
-beautifulsoup4 = "~4.12"
-jmespath = "^1.0.1"
-requests = "^2.32.3"
-rich-click = "^1.8.3"
-django-extensions = "^3.2.3"
-
-
-[tool.poetry.group.dev.dependencies]
-black = "25.1.0"
-isort = "6.0.0"
-flake8 = "7.1.2"
-coverage = "7.6.12"
-responses = "0.25.6"
-pre-commit = "4.1.0"
-
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "coverage>=7.6.12",
+    "flake8>=7.1.2",
+    "isort>=6.0.1",
+    "pre-commit>=4.1.0",
+    "responses>=0.25.6",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.scripts]
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[project.scripts]
 wp = "commands.cli:wp"
 wt = "commands.cli:wt"
 dj = "commands.cli:dj"

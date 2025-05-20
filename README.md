@@ -7,7 +7,7 @@ It's not yet ready for production use but a lot of the basic functionality is in
 ## Requirements
 
 - Python 3.10+ (earlier versions may work)
-- Poetry & Docker
+- UV & Docker
 - WordPress CLI (instllled via Docker)
 - Wordpress Data (currently using a test data set used for building themes)
 - Wagtail v6.4 (earlier versions may work)

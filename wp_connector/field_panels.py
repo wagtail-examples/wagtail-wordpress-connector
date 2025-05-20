@@ -21,7 +21,7 @@ class WordpressInfoPanel(HelpPanel):
         heading="Wordpress Info",
         content=None,
         template="wp_connector/panels/wordpress_info_panel.html",
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.heading = heading

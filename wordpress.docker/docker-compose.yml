@@ -1,7 +1,7 @@
 services:
 
   wordpress:
-    image: wordpress:latest
+    image: wordpress
     platform: linux/x86_64
     restart: always
     ports:
