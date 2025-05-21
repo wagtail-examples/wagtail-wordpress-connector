@@ -1,27 +1,25 @@
 [project]
 name = "wagtail-wordpress-connector"
 version = "0.1.0"
-description = "Add your description here"
+description = "This is an experimental project to import WordPress content including pages and posts into Wagtail."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.13.3",
-    "django>=4.2",
+    "django>=5.2",
     "django-extensions>=3.2.3",
     "jmespath>=1.0.1",
     "requests>=2.32.3",
     "rich-click>=1.8.6",
-    "wagtail>=6.4",
+    "wagtail>=7.0",
 ]
 
 [dependency-groups]
 dev = [
-    "black>=25.1.0",
     "coverage>=7.6.12",
-    "flake8>=7.1.2",
-    "isort>=6.0.1",
     "pre-commit>=4.1.0",
     "responses>=0.25.6",
+    "ruff>=0.11.10",
 ]
 
 [build-system]
@@ -32,6 +30,7 @@ build-backend = "hatchling.build"
 packages = ["."]
 
 [project.scripts]
+go = "commands.cli:go"
 wp = "commands.cli:wp"
 wt = "commands.cli:wt"
 dj = "commands.cli:dj"

@@ -24,8 +24,8 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # Application definition
 
 INSTALLED_APPS = [
-    "home",
-    "search",
+    "app.home",
+    "app.search",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.contrib.styleguide",
@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "wp_connector",
-    "blog",
+    "app.blog",
 ]
 
 MIDDLEWARE = [
@@ -135,7 +135,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_DIR, "static"),
+    os.path.join(PROJECT_DIR, "static_compiled"),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")

@@ -1,8 +1,8 @@
 from django.test import TestCase
 from wagtail.models import Page
 
-from blog.models import BlogIndexPage, BlogPage
-from home.models import HomePage
+from app.blog.models import BlogIndexPage, BlogPage
+from app.home.models import HomePage
 from wp_connector.models.post import WPPost
 from wp_connector.richtext_field_processor import FieldProcessor
 

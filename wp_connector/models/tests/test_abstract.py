@@ -196,7 +196,6 @@ class TestStreamFieldMixin(TestCase):
         B()
 
     def test_attrs_streamfield_mapping(self):
-
         # get_streamfield_mapping
         class C(StreamFieldMixin):
             STREAMFIELD_MAPPING = {"content": "body"}

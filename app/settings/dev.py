@@ -12,7 +12,7 @@ ALLOWED_HOSTS = ["*"]
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Remove if not required
-INSTALLED_APPS += ["style_guide", "django_extensions"]  # noqa F405
+INSTALLED_APPS += ["app.style_guide", "django_extensions"]  # noqa F405
 
 # To stop the redirects from being created when a page is moved
 # Use the redirects action in the import action to create the redirects

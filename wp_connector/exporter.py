@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from django.apps import apps
 from taggit.models import Tag
 
-from blog.models import Author, BlogCategory, BlogPageCategory
+from app.blog.models import Author, BlogCategory, BlogPageCategory
 from wp_connector.streamfieldable import StreamFieldable
 
 

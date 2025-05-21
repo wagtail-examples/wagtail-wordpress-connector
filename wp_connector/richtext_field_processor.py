@@ -91,9 +91,9 @@ class FieldProcessor:
                             )
                             soup.find("a", href=a["href"]).replaceWith(richtext_anchor)
                             data["value"] = str(soup)
-            self.wagtail_instance.__dict__[stream_field].__dict__[
-                "_raw_data"
-            ] = raw_data
+            self.wagtail_instance.__dict__[stream_field].__dict__["_raw_data"] = (
+                raw_data
+            )
 
         if hasattr(self, "wagtail_instance"):
             revision = self.wagtail_instance.save_revision()
@@ -137,7 +137,6 @@ class FieldProcessor:
         if anchor.get("href").startswith("http://") or anchor.get("href").startswith(
             "https://"
         ):
-
             if "." in anchor.get("href"):
                 # ignore already absolute links and have a dotted domain
                 return "external"

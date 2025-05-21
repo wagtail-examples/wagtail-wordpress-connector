@@ -168,3 +168,4 @@ node_modules/
 wordpress.docker/wp-content
 wordpress.docker/xml
 /static
+/app/static_compiled

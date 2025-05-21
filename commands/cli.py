@@ -14,54 +14,27 @@ DC = "docker-compose"
 @click.group()
 def wp():
     """
-    CLI for setting up a wordpress container that manages:
+    Set up a WORDPRESS container with a running wordpress site
 
-    - the wordpress installation
-
-    - the plugins
-
-    - the demo data
-
+    It is intend to be a local development tool and not suitable for a production environment.
     """
 
 
 @click.group()
 def wt():
     """
-    CLI for the wagtail site that manages:
+    Run commands against a WAGTIAL site, running in a virtual environment.
 
-    - migrations
-
-    - superuser creation
-
-    - running the server
-
-    - fixing the tree command
+    It is intend to be a local development tool and probably would be run differently in a production environment.
     """
 
 
 @click.group()
 def dj():
     """
-    CLI for the django admin site that manages:
+    Run commands against a DJANGO site, running in a virtual environment.
 
-    - importing data from wordpress
-
-    - importing authors
-
-    - importing categories
-
-    - importing tags
-
-    - importing pages
-
-    - importing posts
-
-    - importing media
-
-    - importing comments
-
-    - importing all data
+    It is intend to be a local development tool and probably would be run differently in a production environment.
     """
 
 
@@ -120,14 +93,22 @@ def destroy():
         env_file = WORDPRESS_ROOT / ".env"
         if env_file.exists():
             env_file.unlink()
+            print("Removed .env file")
 
         wp_content = WORDPRESS_ROOT / "wp-content"
         if wp_content.exists():
             subprocess.run(["rm", "-rf", WORDPRESS_ROOT / "wp-content"])
+            print("Removed wp-content directory")
 
         wp_xml = WORDPRESS_ROOT / "xml"
         if wp_xml.exists():
             subprocess.run(["rm", "-rf", WORDPRESS_ROOT / "xml"])
+            print("Removed xml directory")
+
+        wt_database = ROOT / "db.sqlite3"
+        if wt_database.exists():
+            subprocess.run(["rm", "-rf", ROOT / "db.sqlite3"])
+            print("Removed wagtail database")
 
 
 @wp.command()
@@ -144,7 +125,7 @@ def load():
     subprocess.run([DC, "exec", "-T", "wordpress", "bin/init.sh"], cwd=WORDPRESS_ROOT)
 
 
-"""WAGTAIL COMMANDS"""
+"""WAGTAIL/DJANGO COMMANDS"""
 
 
 @wt.command()
@@ -171,7 +152,7 @@ def fixtree():
     subprocess.run(["python", "manage.py", "fixtree"], cwd=ROOT)
 
 
-"""DJANGO COMMANDS"""
+"""IMPORT COMMANDS"""
 
 
 @dj.command()
@@ -289,3 +270,46 @@ def all():
     subprocess.call(["dj", "posts"])
     subprocess.call(["dj", "media"])
     subprocess.call(["dj", "comments"])
+
+
+@click.group()
+def go():
+    """
+    Master CLI for Wagtail-WordPress Connector
+
+    The commands are provided for convienince, the result of running the wt or dj commands\n
+    is the same as running the management commands directly.
+    """
+    pass
+
+
+# Add command groups to the main CLI
+go.add_command(wp)
+go.add_command(wt)
+go.add_command(dj)
+
+
+@go.command()
+def devstart():
+    """Run all commands"""
+    subprocess.run(["wp", "build"])
+    subprocess.run(["wp", "up"])
+    subprocess.run(["wp", "load"])
+    subprocess.run(["wt", "migrate"])
+    subprocess.run(["wt", "superuser"])
+    subprocess.run(["dj", "all"])
+    subprocess.run(["wt", "run"])
+
+
+@go.command()
+def devstop():
+    """Stop all running services"""
+    subprocess.run(["wp", "down"])
+    subprocess.run(["dj", "stop"])
+    subprocess.run(["wt", "stop"])
+
+
+@go.command()
+def devdestroy():
+    """Destroy and cleanup wordpress and wagtail"""
+    subprocess.run(["wp", "destroy"])
