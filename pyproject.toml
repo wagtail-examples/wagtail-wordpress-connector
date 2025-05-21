@@ -10,12 +10,12 @@ dependencies = [
     "django-extensions>=3.2.3",
     "jmespath>=1.0.1",
     "requests>=2.32.3",
-    "rich-click>=1.8.6",
     "wagtail>=7.0",
 ]
 
 [dependency-groups]
 dev = [
+    "colorama>=0.4.6",
     "coverage>=7.6.12",
     "pre-commit>=4.1.0",
     "responses>=0.25.6",
@@ -28,12 +28,3 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["."]
-
-[project.scripts]
-go = "commands.cli:go"
-wp = "commands.cli:wp"
-wt = "commands.cli:wt"
-dj = "commands.cli:dj"
-
-i = "commands.inspector:i"
-a = "commands.anchor_links:a"
