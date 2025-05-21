@@ -16,6 +16,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "colorama>=0.4.6",
     "coverage>=7.6.12",
     "pre-commit>=4.1.0",
     "responses>=0.25.6",

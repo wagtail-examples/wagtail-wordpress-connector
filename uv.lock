@@ -722,6 +722,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "colorama" },
     { name = "coverage" },
     { name = "pre-commit" },
     { name = "responses" },
@@ -741,6 +742,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "colorama", specifier = ">=0.4.6" },
     { name = "coverage", specifier = ">=7.6.12" },
     { name = "pre-commit", specifier = ">=4.1.0" },
     { name = "responses", specifier = ">=0.25.6" },
