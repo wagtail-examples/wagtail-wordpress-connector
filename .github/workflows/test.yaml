@@ -24,6 +24,7 @@ jobs:
       - name: Linting & Formatting
         run: |
           uv run ruff check .
+
       - name: Run tests
         run: |
           uv run manage.py collectstatic --noinput

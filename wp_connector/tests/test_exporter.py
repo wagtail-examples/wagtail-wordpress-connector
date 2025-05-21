@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from blog.models import BlogCategory, BlogIndexPage, BlogPage
-from home.models import HomePage
+from app.blog.models import BlogCategory, BlogIndexPage, BlogPage
+from app.home.models import HomePage
 from wp_connector.exporter import Exporter
 from wp_connector.models.author import WPAuthor
 from wp_connector.models.category import WPCategory
