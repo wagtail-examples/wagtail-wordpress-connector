@@ -231,6 +231,7 @@ make destroy
 ```
 
 Using `make start` will execute the following commands in sequence:
+
 - WordPress initial setup (wp-build)
 - Start WordPress container (wp-up)
 - Import WordPress demo data (wp-load)
