@@ -166,16 +166,16 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "5.1.6"
+version = "5.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6d/e4/901f54ee114a080371a49bd08fa688d301aaffd9751febaf4ae855fc8fcd/Django-5.1.6.tar.gz", hash = "sha256:1e39eafdd1b185e761d9fab7a9f0b9fa00af1b37b25ad980a8aa0dac13535690", size = 10700620 }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/10/0d546258772b8f31398e67c85e52c66ebc2b13a647193c3eef8ee433f1a8/django-5.2.1.tar.gz", hash = "sha256:57fe1f1b59462caed092c80b3dd324fd92161b620d59a9ba9181c34746c97284", size = 10818735 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/75/6f/d2c216d00975e2604b10940937b0ba6b2c2d9b3cc0cc633e414ae3f14b2e/Django-5.1.6-py3-none-any.whl", hash = "sha256:8d203400bc2952fbfb287c2bbda630297d654920c72a73cc82a9ad7926feaad5", size = 8277066 },
+    { url = "https://files.pythonhosted.org/packages/90/92/7448697b5838b3a1c6e1d2d6a673e908d0398e84dc4f803a2ce11e7ffc0f/django-5.2.1-py3-none-any.whl", hash = "sha256:a9b680e84f9a0e71da83e399f1e922e1ab37b2173ced046b541c72e1589a5961", size = 8301833 },
 ]
 
 [[package]]
@@ -253,16 +253,16 @@ wheels = [
 
 [[package]]
 name = "django-tasks"
-version = "0.6.1"
+version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "django-stubs-ext" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/76/63/46f3c2deb2a9df48d46c2f7a067f1286adc674a2a16e99c0344e327a2d4b/django_tasks-0.6.1.tar.gz", hash = "sha256:4086e7eb9e965f79c4ac76f5c3690ec3bf41c461585237b71b4bde729ced9826", size = 26575 }
+sdist = { url = "https://files.pythonhosted.org/packages/86/d2/09aa8cac81e5eb1719bed0fdfa865501e739a384830772a01954dc59e192/django_tasks-0.7.0.tar.gz", hash = "sha256:499f80d1a051566443cfa88a300d8b03435af7fc5708cad4d8da6d285614f739", size = 29581 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bf/a3/f9c6634f67c5bcd309b17fe756ee4a321779806ab515e7ccc6333a439275/django_tasks-0.6.1-py3-none-any.whl", hash = "sha256:b3648e28bdcda809cb7831f3aff98aa46c327025447c462b8943cce9dfbb0281", size = 36330 },
+    { url = "https://files.pythonhosted.org/packages/11/e2/1079d177654bd3d4200040d031e9e42831fab532ac4ea8354db15b3280b5/django_tasks-0.7.0-py3-none-any.whl", hash = "sha256:8a8d64f2dc6e29ac2f45092d90e2dd82dc1dca100dfe3a4f2ce1209db99f3527", size = 39970 },
 ]
 
 [[package]]
@@ -680,7 +680,7 @@ wheels = [
 
 [[package]]
 name = "wagtail"
-version = "6.4.1"
+version = "7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyascii" },
@@ -701,9 +701,9 @@ dependencies = [
     { name = "telepath" },
     { name = "willow", extra = ["heif"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4f/0f/4ad523cf1c2aee06e32e279b1b98d3a4e5577ee952acbc486034d6f191f2/wagtail-6.4.1.tar.gz", hash = "sha256:cec3e6d4920a6d178fa1eb6f4af80b370fdd5570ed924b979104e157f10ca097", size = 6630337 }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/54/8702c72fa14c8da1a96cf0542b10cc755b62d0f885e8f11b4ee88b4ff316/wagtail-7.0.tar.gz", hash = "sha256:7c267ead43da3aa9469f233b111624aa1a508a5840f1ddda72d104957fdb3426", size = 6670098 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9c/44/e2383decf738b3d5491084f6ae758f0115d3bdeddb6f059f8724078c4950/wagtail-6.4.1-py3-none-any.whl", hash = "sha256:85206f86b04876d5596190e042d30de0430fdb5cdd71b6005748c8a0d45066ec", size = 9110827 },
+    { url = "https://files.pythonhosted.org/packages/98/cf/426b073612fc36aa9a921ff5ca15635b5fc40fabccbfc0345e50cdb09000/wagtail-7.0-py3-none-any.whl", hash = "sha256:6a254ef84a740689dd844aabc5254828ecb62840257721e639929cb0e1a2b3c1", size = 9148023 },
 ]
 
 [[package]]
@@ -731,12 +731,12 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.3" },
-    { name = "django", specifier = ">=4.2" },
+    { name = "django", specifier = ">=5.2" },
     { name = "django-extensions", specifier = ">=3.2.3" },
     { name = "jmespath", specifier = ">=1.0.1" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "rich-click", specifier = ">=1.8.6" },
-    { name = "wagtail", specifier = ">=6.4" },
+    { name = "wagtail", specifier = ">=7.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -749,15 +749,15 @@ dev = [
 
 [[package]]
 name = "willow"
-version = "1.9.0"
+version = "1.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "defusedxml" },
     { name = "filetype" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2b/07/7937bb91ba3373133d903ec6c8a7a3fe0bec6ac964c7f2e532188e230c9b/willow-1.9.0.tar.gz", hash = "sha256:ffac1406275ae30b60e7c6cbd1245f0bc359d1b5731002b18a712aaf424a5102", size = 113373 }
+sdist = { url = "https://files.pythonhosted.org/packages/8d/73/9bc0a72cfaf0f280e9aeea61eae8760723b8c353c0656041dda4c6dc2833/willow-1.10.0.tar.gz", hash = "sha256:e10673ff954e79ca0412c648e40dd9ce0b93c8bef798e8468ce3411ff972fb15", size = 113732 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dd/c0/10a11f2dc0dc485a397bd3f66098805b6e39e7317f5acb72b415d1d7a559/willow-1.9.0-py3-none-any.whl", hash = "sha256:11a13097cffe501898cd434bb5761fb6cdbdb774a7853094cb56a4ba57cbbff7", size = 119156 },
+    { url = "https://files.pythonhosted.org/packages/34/a1/d380e90da1306d53fff9d1cac17d80acb7aca9679a2cb4f0f8459239c1bd/willow-1.10.0-py3-none-any.whl", hash = "sha256:26861dbacc9584f5d4566de7d31c092437225abc4b1978fa9ac44a433200f938", size = 119306 },
 ]
 
 [package.optional-dependencies]
