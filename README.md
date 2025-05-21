@@ -1,75 +1,103 @@
-# Wordess to Wagtail Importer (Experimental)
+# WordPress to Wagtail Importer (Experimental)
+
+[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![Wagtail 7.0+](https://img.shields.io/badge/wagtail-7.0+-green.svg)](https://wagtail.org/)
+[![Django 5.2+](https://img.shields.io/badge/django-5.2+-orange.svg)](https://www.djangoproject.com/)
 
 This is an experimental project to import WordPress content including pages and posts into Wagtail.
 
-It's not yet ready for production use but a lot of the basic functionality is in place.
+It's not yet ready for production use, but most of the core functionality is in place.
+
+## Features
+
+- Import WordPress pages and posts into a Django application
+- Inspect WordPress API endpoints to understand available data
+- Transfer selected WordPress content to Wagtail
+- Preserve authors, categories, and tags as Wagtail snippets
+- Create redirects from WordPress URLs to new Wagtail URLs
+- Manage imported content through Wagtail's admin interface
 
 ## Requirements
 
-- Python 3.10+ (earlier versions may work)
+- Python 3.13+
 - UV & Docker
-- WordPress CLI (instllled via Docker)
-- Wordpress Data (currently using a test data set used for building themes)
-- Wagtail v6.4 (earlier versions may work)
-- Django v5.1 (earlier versions may work)
-- Lots of patience :)
+- WordPress CLI (installed via Docker)
+- WordPress instance with REST API enabled
+- Wagtail 7.0+
+- Django 5.2+
 
-## Overall Goals
+## Workflow Overview
 
-- To demostrate importing WordPress content into a Django app.
-- Be able to manipulate the imported data using the django-admin.
-- Be able to transfer selected imported wordpress data over to a Wagtail site.
-- Be able to manage the imported data in Wagtail which will have no dependency on the WordPress instance.
-- Once all data is transferred to Wagtail, the WordPress connector app can be removed from the project.
+The migration process follows these steps:
 
-![Example Screen Shot](./docs/screen-wagtail.png "Wagtail site with imported WordPress data")
+1. Import WordPress data into Django models
+2. Manage and curate the imported data using the Django admin
+3. Transfer selected content to Wagtail from the Django admin
+4. Manage the transferred content in the Wagtail admin
+5. Remove the WordPress connector app from the project when finished
 
-![Example Screen Shot](./docs/screen-wagtail-admin.png "Wagtail admin for managing imported data")
+![Wagtail site with imported WordPress data](./docs/screen-wagtail.png "Wagtail site with imported WordPress data")
 
-The overall workflow is as follows:
+![Wagtail admin for managing imported data](./docs/screen-wagtail-admin.png "Wagtail admin for managing imported data")
 
-1. Import WordPress data into Django
-2. Manage the imported data in the Django admin
-3. Transfer the data to Wagtail from the Django admin
-4. Manage the transferred data in the Wagtail admin
-5. Remove the WordPress connector app from the project
+### Importing WordPress Data
 
-### Importing WordPress data
+The importer uses a Django management command to import data from a WordPress instance. While this example imports data from a local WordPress instance, the importer can connect to any WordPress site with the REST API enabled.
 
-The importer will use a Django management command that will import the data from a WordPress instance.
+To use this for your own site, you'll need to add the `wp_connector` package to your Wagtail project, configure it to point to your WordPress instance, and run the importer.
 
-Although this example imports data from a local WordPress instance, the importer can be used to import data from any WordPress instance that has the JSON api enabled.
+### WordPress API Inspection
 
-The only package that should be added to your final production site, for importing and transferring the Wordpress Pages and Posts to Wagtail, is the `wp_connector` package. You'll need to add some temporary configuration to Wagtail and then run the importer against your own live WordPress instance, which will need it's JSON api enabled.
+The project includes API inspection tools (`wp_api_inspector.py` and `find_anchor_links.py`) to help you understand the structure of your WordPress data before importing.
 
-### Transfering data to Wagtail
+### Transferring Data to Wagtail
 
-Using the django admin admin interface you will be able to select and transfer  the data to Wagtail. Posts and Pages are the main focus for the transfer but linked data such as authors, categories, tags, etc. are also be transferred across. Authors, Categories and Tags are created as snippets. Tags are created within the available Wagtail taggit integration.
+The Django admin interface provides a way to select and transfer WordPress content to Wagtail:
 
-The transfer process also includes creating redirects from the old WordPress urls to the new Wagtail urls.
+- Pages and Posts are created as corresponding Wagtail page types
+- Authors, Categories, and Tags are created as Wagtail snippets
+- Tags integrate with Wagtail's taggit implementation
+- Redirects are automatically created from WordPress URLs to Wagtail URLs
 
-Images and docs linked to and embedded in the transferred pages and posts are also transferred to Wagtail into the Wagtail media library. This action also including updating the links in the content to point to the new Wagtail media urls. (This is not yet implemented)
+![Django Admin for transferring data](./docs/screen-django.png "Django Admin for transferring data")
 
-### Completing the transfer
+### Media Handling (Coming Soon)
 
-Once you have transferred all the data to Wagtail, you can remove the WordPress connector module. This will leave you with a Wagtail site that has no dependency on the WordPress instance. You can then manage the site as you would any other Wagtail site.
+The transfer process will include handling images and documents:
 
-![Example Screen Shot](./docs/screen-django.png "Django Admin for transferring data")
+- Media files will be transferred to the Wagtail media library
+- Content references will be updated to point to new Wagtail media URLs
+- *Note: This feature is not yet fully implemented*
+
+### Completing the Transfer
+
+Once you've transferred all your content to Wagtail, you can remove the WordPress connector module. Your Wagtail site will have no dependencies on the WordPress instance, allowing you to manage it like any other Wagtail site.
 
 ## Project Setup & Usage
 
-View the [Setup & Usage Guide](./docs/setup.md) for instructions on setting up the project.
+For detailed setup instructions, see the [Setup & Usage Guide](./docs/setup.md).
 
-## ToDo's
+## Todo Items
 
-- Images and Documents are not yet imported
-- Comments are not yet imported
-- and probably lots more I've not yet thought of 😆
+- Complete media import (images and documents)
+- Add comment import functionality
+- Improve error handling and reporting during imports
+- Add more customization options for content mapping
 
-## Issues
+## Issues & Roadmap
 
-I am maintaing a list of issues and features in the [issues](https://github.com/wagtail-examples/wagtail-wordpress-connector/issues) section of the repository.
+Issues and feature requests are tracked in the [GitHub issues](https://github.com/wagtail-examples/wagtail-wordpress-connector/issues) section.
 
 ## Contributing
 
-If you would like to contribute to this project, please fork the repository and submit a pull request.
+Contributions are welcome! To contribute:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the terms included in the LICENSE file.
