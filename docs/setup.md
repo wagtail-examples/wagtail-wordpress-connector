@@ -4,6 +4,12 @@ You can run this example as a test site for your own WordPress to Wagtail migrat
 
 This example has a Wordpress instance with test data and a Wagtail instance with the WordPress connector installed so you can see how the importer works.
 
+## The CLI
+
+The CLI is used to run the example. The CLI is a wrapper around all the parts required to run the example. It uses Docker to run the WordPress instance and UV to run the Wagtail/Django instance.
+
+Once you have followed the virtual environment setup instructions below, you can run `go` to see the available commands.
+
 ## Wordpress CLI and test data
 
 The WordPress CLI is used to setup and initialse the WordPress instance.
