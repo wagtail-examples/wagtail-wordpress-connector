@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Input and output directories
-const inputDirectory = path.join(__dirname, '../static_src/img/');
+const inputDirectory = path.join(__dirname, '../app/static_src/img/');
 const outputDirectory = path.join(__dirname, '../app/static_compiled/img/');
 
 // Resizing constraints
