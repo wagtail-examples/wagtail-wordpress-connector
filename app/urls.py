@@ -5,7 +5,8 @@ from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
-from search import views as search_views
+from app.search import views as search_views
+from app.style_guide import urls as style_guide_urls
 from wp_connector.admin import import_admin
 
 urlpatterns = [
@@ -14,7 +15,7 @@ urlpatterns = [
     path("import-admin/", import_admin.urls),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
-    path("style-guide/", include("style_guide.urls")),
+    path("style-guide/", include(style_guide_urls)),
 ]
 
 if settings.DEBUG:

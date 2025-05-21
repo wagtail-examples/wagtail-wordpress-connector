@@ -14,7 +14,7 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.search import index
 
-from home.blocks import StreamBlocks
+from app.home.blocks import StreamBlocks
 from wp_connector.field_panels import WordpressInfoPanel
 
 

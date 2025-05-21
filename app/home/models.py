@@ -2,7 +2,7 @@ from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 
-from home.blocks import StreamBlocks
+from app.home.blocks import StreamBlocks
 from wp_connector.field_panels import WordpressInfoPanel
 
 
