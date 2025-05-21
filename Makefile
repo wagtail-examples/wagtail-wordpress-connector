@@ -44,9 +44,9 @@ help:
 	@echo "  make node-scripts-watch - Watch and compile JavaScript"
 	@echo ""
 	@echo "Convenience Commands:"
-	@echo "  make devstart     - Run all commands to set up and start the development environment"
-	@echo "  make devstop      - Stop all running services"
-	@echo "  make devdestroy   - Destroy and cleanup wordpress and wagtail"
+	@echo "  make start     - Run all commands to set up and start the development environment"
+	@echo "  make stop      - Stop all running services"
+	@echo "  make destroy   - Destroy and cleanup wordpress and wagtail"
 
 # WordPress Commands
 .PHONY: wp-build
@@ -168,17 +168,17 @@ import-all: import-authors import-categories import-tags import-pages import-pos
 	@echo "Imported all WordPress data"
 
 # Convenience Commands
-.PHONY: devstart
-devstart: wp-build wp-up wp-load wt-migrate wt-superuser import-all wt-run
+.PHONY: start
+start: wp-build wp-up wp-load wt-migrate wt-superuser import-all wt-run
 	@echo "Development environment started"
 
-.PHONY: devstop
-devstop: wp-down
+.PHONY: stop
+stop: wp-down
 	@echo "Development environment stopped"
 	@echo "Note: There is no direct equivalent for 'dj stop' and 'wt stop' in the CLI, but WordPress container has been stopped."
 
-.PHONY: devdestroy
-devdestroy: wp-destroy
+.PHONY: destroy
+destroy: wp-destroy
 	@echo "Development environment destroyed"
 
 # Node.js Commands
