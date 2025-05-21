@@ -93,14 +93,22 @@ def destroy():
         env_file = WORDPRESS_ROOT / ".env"
         if env_file.exists():
             env_file.unlink()
+            print("Removed .env file")
 
         wp_content = WORDPRESS_ROOT / "wp-content"
         if wp_content.exists():
             subprocess.run(["rm", "-rf", WORDPRESS_ROOT / "wp-content"])
+            print("Removed wp-content directory")
 
         wp_xml = WORDPRESS_ROOT / "xml"
         if wp_xml.exists():
             subprocess.run(["rm", "-rf", WORDPRESS_ROOT / "xml"])
+            print("Removed xml directory")
+
+        wt_database = ROOT / "db.sqlite3"
+        if wt_database.exists():
+            subprocess.run(["rm", "-rf", ROOT / "db.sqlite3"])
+            print("Removed wagtail database")
 
 
 @wp.command()
@@ -279,3 +287,29 @@ def go():
 go.add_command(wp)
 go.add_command(wt)
 go.add_command(dj)
+
+
+@go.command()
+def devstart():
+    """Run all commands"""
+    subprocess.run(["wp", "build"])
+    subprocess.run(["wp", "up"])
+    subprocess.run(["wp", "load"])
+    subprocess.run(["wt", "migrate"])
+    subprocess.run(["wt", "superuser"])
+    subprocess.run(["dj", "all"])
+    subprocess.run(["wt", "run"])
+
+
+@go.command()
+def devstop():
+    """Stop all running services"""
+    subprocess.run(["wp", "down"])
+    subprocess.run(["dj", "stop"])
+    subprocess.run(["wt", "stop"])
+
+
+@go.command()
+def devdestroy():
+    """Destroy and cleanup wordpress and wagtail"""
+    subprocess.run(["wp", "destroy"])
