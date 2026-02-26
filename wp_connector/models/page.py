@@ -81,7 +81,7 @@ class WPPage(WordpressModel, ExportableMixin, StreamFieldMixin):
         """Clean the content."""
         return [
             {
-                "content": "wp_cleaned_content",
+                "wp_cleaned_content": "content.rendered",
             }
         ]
 

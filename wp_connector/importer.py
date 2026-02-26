@@ -83,6 +83,41 @@ class Importer:
         # processing foreign keys here as we have access to all the data now
         self.process_one_to_many(self.one_to_many)
         self.process_many_to_many(self.many_to_many)
+        self.process_clean_fields(self.clean_fields)
+
+    @staticmethod
+    def get_cleaned_data(process_clean_fields, item):
+        cleaned_data = []
+
+        def clean_content(content):
+            # currently just removes whitespace incl. newlines
+            # from the start and end of the content
+            # remove br tags if they are a top level tag using beautifulsoup
+            # remove empty paragraphs
+
+            soup = bs(content, "html.parser")
+            tags = []
+            for tag in soup.find_all("br", recursive=False):
+                tag.decompose()
+
+            for tag in soup.find_all("p", recursive=False):
+                if not tag.text.strip():
+                    tag.decompose()
+
+            for tag in soup.find_all(recursive=True):
+                tags.append(str(tag))
+
+            return "".join(tags)
+
+        for field in process_clean_fields():
+            for key, value in field.items():
+                cleaned_data.append(
+                    {
+                        key: clean_content(jmespath.search(value, item)),
+                    }
+                )
+
+        return cleaned_data
 
     @staticmethod
     def get_many_to_many_data(process_many_to_many_keys, item):
@@ -221,3 +256,12 @@ class Importer:
 
                 for related_object in related_objects:
                     getattr(obj, field).add(related_object)
+
+    @staticmethod
+    def process_clean_fields(cleaned_fields):
+        sys.stdout.write("Processing clean fields...\n")
+        for obj in cleaned_fields:
+            for field in obj.cleaned_data:
+                for key, value in field.items():
+                    setattr(obj, key, value)
+            obj.save()
